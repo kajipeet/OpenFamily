@@ -1,0 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body { height: 100%; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #c2cdd6; border-radius: 3px; }
+
+.chat-bubble-out {
+  @apply bg-tg-bubble text-gray-900 rounded-2xl rounded-br-sm;
+}
+.chat-bubble-in {
+  @apply bg-white text-gray-900 rounded-2xl rounded-bl-sm shadow-sm;
+}

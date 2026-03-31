@@ -1,0 +1,1 @@
+import{_ as s,o as t,c,U as n}from"./DOibNw17.js";const o={},r={class:"min-h-screen bg-white font-sans"};function a(e,_){return t(),c("div",r,[n(e.$slots,"default")])}const f=s(o,[["render",a]]);export{f as default};
