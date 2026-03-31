@@ -40,8 +40,3 @@ provide('toggleMobileSidebar', () => {
   showMobileSidebar.value = !showMobileSidebar.value
 })
 </script>
-
-<script setup lang="ts">
-import { useCallStore } from '~/stores/call'
-const callStore = useCallStore()
-</script>
