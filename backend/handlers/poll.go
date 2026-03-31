@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -18,8 +19,14 @@ type PollRequest struct {
 // Used as a fallback when WebSocket is unavailable (mobile networks, proxies, etc).
 func PollEvents(db *mongo.Database) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID := c.GetString("user_id")
-		if userID == "" {
+		userIDHex := c.GetString("user_id")
+		if userIDHex == "" {
+			c.JSON(401, gin.H{"error": "unauthorized"})
+			return
+		}
+
+		userID, err := primitive.ObjectIDFromHex(userIDHex)
+		if err != nil {
 			c.JSON(401, gin.H{"error": "unauthorized"})
 			return
 		}

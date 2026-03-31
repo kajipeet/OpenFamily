@@ -59,9 +59,125 @@
           Add
         </button>
       </form>
-      <p class="text-tg-gray text-xs">
-        After creating a pack, upload sticker images via the file upload endpoint and manage them using the API.
-      </p>
+
+      <div v-if="loadingPacks" class="text-tg-gray text-xs py-2">Loading packs…</div>
+      <div v-else-if="packs.length === 0" class="text-tg-gray text-xs py-2">No sticker packs yet.</div>
+
+      <div v-else class="space-y-4">
+        <div class="flex flex-wrap gap-2">
+          <button
+            v-for="p in packs"
+            :key="p.id"
+            type="button"
+            @click="selectedPackId = p.id"
+            class="px-3 py-1.5 rounded-lg text-xs border transition"
+            :class="selectedPackId === p.id ? 'bg-tg-blue text-white border-transparent' : 'bg-tg-sidebar-darker text-tg-gray border-white/10 hover:text-white'"
+          >
+            {{ p.name }}
+          </button>
+        </div>
+
+        <div class="bg-tg-sidebar-darker rounded-xl p-3 space-y-3">
+          <p class="text-white text-xs font-medium">Create Sticker</p>
+          <input
+            v-model="newSticker.name"
+            placeholder="Sticker name"
+            class="w-full bg-tg-sidebar text-white rounded-lg px-3 py-2 text-xs outline-none"
+          />
+          <input
+            v-model="newSticker.fileUrl"
+            placeholder="Or paste file URL"
+            class="w-full bg-tg-sidebar text-white rounded-lg px-3 py-2 text-xs outline-none"
+          />
+          <input
+            type="file"
+            accept="image/*"
+            class="w-full text-xs text-tg-gray"
+            @change="onNewStickerFileChange"
+          />
+          <button
+            type="button"
+            :disabled="creatingSticker || !selectedPackId"
+            @click="createSticker"
+            class="w-full bg-tg-blue text-white rounded-lg py-2 text-xs disabled:opacity-60"
+          >
+            {{ creatingSticker ? 'Creating…' : 'Create Sticker' }}
+          </button>
+          <p v-if="stickerError" class="text-red-400 text-xs">{{ stickerError }}</p>
+        </div>
+
+        <div class="space-y-2">
+          <div class="text-white text-xs font-medium">Stickers in selected pack</div>
+          <div v-if="loadingStickers" class="text-tg-gray text-xs">Loading stickers…</div>
+          <div v-else-if="stickers.length === 0" class="text-tg-gray text-xs">No stickers in this pack.</div>
+
+          <div v-for="s in stickers" :key="s.id" class="bg-tg-sidebar-darker rounded-xl p-3">
+            <template v-if="editingStickerId !== s.id">
+              <div class="flex items-center justify-between gap-3">
+                <div class="min-w-0">
+                  <p class="text-white text-sm truncate">{{ s.name }}</p>
+                  <p class="text-tg-gray text-xs truncate">{{ s.file_url }}</p>
+                </div>
+                <div class="flex items-center gap-3 flex-shrink-0">
+                  <button
+                    type="button"
+                    class="text-xs text-tg-blue hover:text-white"
+                    @click="startEditSticker(s)"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    class="text-xs text-red-400 hover:text-red-300"
+                    :disabled="deletingStickerId === s.id"
+                    @click="deleteSticker(s.id)"
+                  >
+                    {{ deletingStickerId === s.id ? 'Deleting…' : 'Delete' }}
+                  </button>
+                </div>
+              </div>
+            </template>
+
+            <template v-else>
+              <div class="space-y-2">
+                <input
+                  v-model="editSticker.name"
+                  placeholder="Sticker name"
+                  class="w-full bg-tg-sidebar text-white rounded-lg px-3 py-2 text-xs outline-none"
+                />
+                <input
+                  v-model="editSticker.fileUrl"
+                  placeholder="File URL"
+                  class="w-full bg-tg-sidebar text-white rounded-lg px-3 py-2 text-xs outline-none"
+                />
+                <input
+                  type="file"
+                  accept="image/*"
+                  class="w-full text-xs text-tg-gray"
+                  @change="onEditStickerFileChange"
+                />
+                <div class="flex gap-2">
+                  <button
+                    type="button"
+                    class="flex-1 bg-tg-blue text-white rounded-lg py-2 text-xs"
+                    :disabled="savingEdit"
+                    @click="saveStickerEdit"
+                  >
+                    {{ savingEdit ? 'Saving…' : 'Save' }}
+                  </button>
+                  <button
+                    type="button"
+                    class="flex-1 bg-white/10 text-white rounded-lg py-2 text-xs"
+                    @click="cancelEditSticker"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
     </section>
   </div>
 </template>
@@ -78,6 +194,18 @@ const form = reactive({ display_name: '', username: '', password: '', role: 'use
 const creating = ref(false)
 const createError = ref('')
 const packName = ref('')
+const packs = ref<any[]>([])
+const selectedPackId = ref('')
+const stickers = ref<any[]>([])
+const loadingPacks = ref(false)
+const loadingStickers = ref(false)
+const creatingSticker = ref(false)
+const stickerError = ref('')
+const newSticker = reactive({ name: '', fileUrl: '', file: null as File | null })
+const editingStickerId = ref('')
+const savingEdit = ref(false)
+const deletingStickerId = ref('')
+const editSticker = reactive({ name: '', fileUrl: '', file: null as File | null })
 
 async function loadUsers() {
   loadingUsers.value = true
@@ -113,7 +241,147 @@ async function createPack() {
   form.append('name', packName.value)
   await $fetch('/api/admin/sticker-packs', { method: 'POST', headers, body: form })
   packName.value = ''
+  await loadPacks()
 }
 
-onMounted(loadUsers)
+async function loadPacks() {
+  loadingPacks.value = true
+  try {
+    packs.value = await $fetch('/api/sticker-packs', { headers }) as any[]
+    if (packs.value.length > 0) {
+      if (!selectedPackId.value || !packs.value.some((p: any) => p.id === selectedPackId.value)) {
+        selectedPackId.value = packs.value[0].id
+      }
+      await loadStickers(selectedPackId.value)
+    } else {
+      selectedPackId.value = ''
+      stickers.value = []
+    }
+  } finally {
+    loadingPacks.value = false
+  }
+}
+
+async function loadStickers(packId: string) {
+  if (!packId) {
+    stickers.value = []
+    return
+  }
+  loadingStickers.value = true
+  try {
+    stickers.value = await $fetch(`/api/sticker-packs/${packId}/stickers`, { headers }) as any[]
+  } finally {
+    loadingStickers.value = false
+  }
+}
+
+function onNewStickerFileChange(event: Event) {
+  const input = event.target as HTMLInputElement
+  newSticker.file = input.files?.[0] ?? null
+}
+
+function onEditStickerFileChange(event: Event) {
+  const input = event.target as HTMLInputElement
+  editSticker.file = input.files?.[0] ?? null
+}
+
+async function uploadStickerFile(file: File) {
+  const formData = new FormData()
+  formData.append('file', file)
+  const res: any = await $fetch('/api/upload', {
+    method: 'POST',
+    headers,
+    body: formData,
+  })
+  return res?.url || ''
+}
+
+async function createSticker() {
+  if (!selectedPackId.value) return
+  stickerError.value = ''
+  creatingSticker.value = true
+  try {
+    let fileUrl = newSticker.fileUrl.trim()
+    if (!fileUrl && newSticker.file) {
+      fileUrl = await uploadStickerFile(newSticker.file)
+    }
+    if (!newSticker.name.trim() || !fileUrl) {
+      throw new Error('Sticker name and file are required')
+    }
+
+    await $fetch(`/api/admin/sticker-packs/${selectedPackId.value}/stickers`, {
+      method: 'POST',
+      headers,
+      body: { name: newSticker.name.trim(), file_url: fileUrl },
+    })
+
+    Object.assign(newSticker, { name: '', fileUrl: '', file: null })
+    await loadStickers(selectedPackId.value)
+  } catch (e: any) {
+    stickerError.value = e?.data?.error ?? e?.message ?? 'Failed to create sticker'
+  } finally {
+    creatingSticker.value = false
+  }
+}
+
+function startEditSticker(sticker: any) {
+  editingStickerId.value = sticker.id
+  editSticker.name = sticker.name || ''
+  editSticker.fileUrl = sticker.file_url || ''
+  editSticker.file = null
+}
+
+function cancelEditSticker() {
+  editingStickerId.value = ''
+  editSticker.name = ''
+  editSticker.fileUrl = ''
+  editSticker.file = null
+}
+
+async function saveStickerEdit() {
+  if (!editingStickerId.value) return
+  savingEdit.value = true
+  try {
+    let fileUrl = editSticker.fileUrl.trim()
+    if (editSticker.file) {
+      fileUrl = await uploadStickerFile(editSticker.file)
+    }
+    await $fetch(`/api/admin/stickers/${editingStickerId.value}`, {
+      method: 'PUT',
+      headers,
+      body: {
+        name: editSticker.name.trim(),
+        file_url: fileUrl,
+      },
+    })
+    await loadStickers(selectedPackId.value)
+    cancelEditSticker()
+  } finally {
+    savingEdit.value = false
+  }
+}
+
+async function deleteSticker(id: string) {
+  if (!confirm('Delete this sticker?')) return
+  deletingStickerId.value = id
+  try {
+    await $fetch(`/api/admin/stickers/${id}`, {
+      method: 'DELETE',
+      headers,
+    })
+    await loadStickers(selectedPackId.value)
+    if (editingStickerId.value === id) cancelEditSticker()
+  } finally {
+    deletingStickerId.value = ''
+  }
+}
+
+watch(selectedPackId, (id) => {
+  if (id) loadStickers(id)
+})
+
+onMounted(async () => {
+  await loadUsers()
+  await loadPacks()
+})
 </script>

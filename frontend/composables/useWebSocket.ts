@@ -6,7 +6,7 @@ let pollTimer: ReturnType<typeof setInterval> | null = null
 let failureCount = 0
 const MAX_FAILURES = 3
 const HEARTBEAT_INTERVAL = 30000 // 30 seconds
-const POLL_INTERVAL = 3000 // 3 seconds
+const POLL_INTERVAL = 1500 // 1.5 seconds
 let lastMessageTime = Date.now()
 
 export function useWebSocket() {
@@ -33,7 +33,7 @@ export function useWebSocket() {
       console.log('[ws] connected')
       failureCount = 0
       if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null }
-      if (pollTimer) startHeartbeat()
+      startHeartbeat()
       // Stop polling if it was active
       if (pollTimer) {
         clearInterval(pollTimer)
@@ -104,11 +104,15 @@ export function useWebSocket() {
         })
         
         if (response && typeof response === 'object') {
-          const events = Array.isArray(response) ? response : response.events || []
+          const events = Array.isArray(response) ? response : (response as any).events || []
+          let maxEventTime = 0
           for (const evt of events) {
             handleMessage(evt)
+            const t = extractEventTimestamp(evt)
+            if (t > maxEventTime) maxEventTime = t
           }
-          lastMessageTime = Date.now()
+          // Keep a small overlap window to avoid edge losses on unstable links.
+          lastMessageTime = (maxEventTime || Date.now()) - 2000
           failureCount = 0
         }
       } catch (err) {
@@ -142,6 +146,20 @@ export function useWebSocket() {
 
   function sendTyping(receiverId: string, chatId: string) {
     sendRaw({ type: 'typing', receiver_id: receiverId, chat_id: chatId })
+  }
+
+  function extractEventTimestamp(evt: any) {
+    try {
+      if (evt?.type === 'message' && evt?.data) {
+        const d = typeof evt.data === 'string' ? JSON.parse(evt.data) : evt.data
+        return d?.created_at ? new Date(d.created_at).getTime() : 0
+      }
+      if (evt?.type === 'read' && evt?.data) {
+        const d = typeof evt.data === 'string' ? JSON.parse(evt.data) : evt.data
+        return d?.delete_at ? new Date(d.delete_at).getTime() : 0
+      }
+    } catch {}
+    return 0
   }
 
   // ── WebSocket event routing ─────────────────────────────────────────────

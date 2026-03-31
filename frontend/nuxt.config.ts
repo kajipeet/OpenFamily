@@ -1,4 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+const env = (globalThis as any).process?.env ?? {}
+
 export default defineNuxtConfig({
   devtools: { enabled: false },
 
@@ -9,10 +11,10 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBase: import.meta.env.NUXT_PUBLIC_API_URL ?? '/api',
-      wsBase: import.meta.env.NUXT_PUBLIC_WS_URL ?? '/ws',
-      turnServer: import.meta.env.NUXT_PUBLIC_TURN_SERVER ?? '',
-      turnSecret: import.meta.env.NUXT_PUBLIC_TURN_SECRET ?? '',
+      apiBase: env.NUXT_PUBLIC_API_URL ?? '/api',
+      wsBase: env.NUXT_PUBLIC_WS_URL ?? '/ws',
+      turnServer: env.NUXT_PUBLIC_TURN_SERVER ?? '',
+      turnSecret: env.NUXT_PUBLIC_TURN_SECRET ?? '',
     },
   },
 

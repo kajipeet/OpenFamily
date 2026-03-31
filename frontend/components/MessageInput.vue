@@ -54,6 +54,21 @@ onMounted(async () => {
   await e2ee.ensurePublished()
 })
 
+async function withRetry<T>(run: () => Promise<T>, attempts = 5) {
+  let lastError: any
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await run()
+    } catch (err) {
+      lastError = err
+      // Exponential backoff for unstable networks.
+      const delay = Math.min(1200 * (i + 1), 5000)
+      await new Promise((resolve) => setTimeout(resolve, delay))
+    }
+  }
+  throw lastError
+}
+
 function handleInput() {
   if (props.receiverId) {
     sendTyping(props.receiverId, props.chatId)
@@ -71,7 +86,7 @@ async function submitText() {
 
   const encrypted = await e2ee.encryptTextForChat(content, props.receiverPublicKey, props.chatId)
 
-  const message: any = await $fetch(`/api/chats/${props.chatId}/messages`, {
+  const message: any = await withRetry(() => $fetch(`/api/chats/${props.chatId}/messages`, {
     method: 'POST',
     headers,
     body: {
@@ -80,7 +95,7 @@ async function submitText() {
       nonce: encrypted.nonce,
       e2ee_version: encrypted.version,
     },
-  })
+  }))
   chatStore.messages.push(message)
   text.value = ''
   emit('sent')
@@ -109,7 +124,7 @@ async function sendEncryptedFile(file: File, forcedType?: string) {
 
   const encryptedFileName = await e2ee.encryptTextForChat(file.name, props.receiverPublicKey, props.chatId)
   const encryptedFile = await e2ee.encryptFileForChat(file, props.receiverPublicKey, props.chatId)
-  const upload: any = await uploader.uploadFile(encryptedFile.encryptedFile)
+  const upload: any = await withRetry(() => uploader.uploadFile(encryptedFile.encryptedFile), 4)
 
   const type = forcedType || (file.type.startsWith('image/')
     ? 'image'
@@ -119,7 +134,7 @@ async function sendEncryptedFile(file: File, forcedType?: string) {
         ? 'audio'
         : 'file')
 
-  const message: any = await $fetch(`/api/chats/${props.chatId}/messages`, {
+  const message: any = await withRetry(() => $fetch(`/api/chats/${props.chatId}/messages`, {
     method: 'POST',
     headers,
     body: {
@@ -134,7 +149,7 @@ async function sendEncryptedFile(file: File, forcedType?: string) {
       file_size: file.size,
       e2ee_version: encryptedFile.version,
     },
-  })
+  }))
 
   chatStore.messages.push(message)
   text.value = ''

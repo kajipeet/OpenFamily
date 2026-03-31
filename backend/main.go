@@ -96,6 +96,9 @@ func main() {
 			admin.POST("/users", adminH.CreateUser)
 			admin.DELETE("/users/:id", adminH.DeleteUser)
 			admin.POST("/sticker-packs", adminH.CreateStickerPack)
+			admin.POST("/sticker-packs/:pack_id/stickers", adminH.CreateSticker)
+			admin.PUT("/stickers/:id", adminH.UpdateSticker)
+			admin.DELETE("/stickers/:id", adminH.DeleteSticker)
 		}
 	}
 
@@ -122,6 +125,9 @@ func ensureIndexes(db *mongo.Database) {
 	})
 	_, _ = db.Collection("chats").Indexes().CreateOne(ctx, mongo.IndexModel{
 		Keys: bson.M{"participants": 1},
+	})
+	_, _ = db.Collection("read_receipts").Indexes().CreateOne(ctx, mongo.IndexModel{
+		Keys: bson.D{{Key: "user_id", Value: 1}, {Key: "updated_at", Value: 1}},
 	})
 }
 

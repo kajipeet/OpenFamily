@@ -10,19 +10,24 @@ export function useWebRTC() {
 
   const localVideo  = ref<HTMLVideoElement | null>(null)
   const remoteVideo = ref<HTMLVideoElement | null>(null)
+  const turnHost = config.public.turnServer
+  const turnUsername = auth.user?.id ?? 'user'
+  const turnCredential = config.public.turnSecret
 
-  const iceServers = [
-    { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' },
-    // Add TURN here if coturn is configured.
-    ...(config.public.turnServer
-      ? [{
-          urls: `turn:${config.public.turnServer}:3478`,
-          username: auth.user?.id ?? 'user',
-          credential: config.public.turnSecret,
-        }]
-      : []),
-  ]
+  const iceServers = turnHost
+    ? [{
+        urls: [
+          `turn:${turnHost}:3478?transport=tcp`,
+          `turns:${turnHost}:5349?transport=tcp`,
+          `turns:${turnHost}:443?transport=tcp`,
+        ],
+        username: turnUsername,
+        credential: turnCredential,
+      }]
+    : [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+      ]
 
   async function startCall(peerId: string, type: 'video' | 'audio') {
     await setupPC()
@@ -105,7 +110,12 @@ export function useWebRTC() {
 
   async function setupPC() {
     if (pc) { pc.close(); pc = null }
-    pc = new RTCPeerConnection({ iceServers })
+    pc = new RTCPeerConnection({
+      iceServers,
+      iceTransportPolicy: turnHost ? 'relay' : 'all',
+      bundlePolicy: 'max-bundle',
+      rtcpMuxPolicy: 'require',
+    })
 
     pc.onicecandidate = (e) => {
       if (e.candidate) {

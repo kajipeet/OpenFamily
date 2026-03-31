@@ -282,6 +282,13 @@ func (h *ChatHandler) MarkRead(c *gin.Context) {
 	h.db.Collection("chats").FindOne(ctx, bson.M{"_id": chatID}).Decode(&chat)
 	for _, p := range chat.Participants {
 		if p != myID {
+			_, _ = h.db.Collection("read_receipts").UpdateOne(
+				ctx,
+				bson.M{"user_id": p, "chat_id": chatID},
+				bson.M{"$set": bson.M{"delete_at": deleteAt, "updated_at": now}},
+				options.Update().SetUpsert(true),
+			)
+
 			payload, _ := json.Marshal(map[string]interface{}{
 				"chat_id":   chatID.Hex(),
 				"delete_at": deleteAt,

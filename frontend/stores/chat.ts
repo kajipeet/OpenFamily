@@ -19,12 +19,13 @@ export const useChatStore = defineStore('chat', {
     },
     async markAllRead(chatId: string) {
       const headers = useAuthHeaders()
+      const auth = useAuthStore()
       try {
         const res: any = await $fetch(`/api/chats/${chatId}/read`, { method: 'PUT', headers })
-        // Update delete_at for affected messages.
+        // Update only incoming unread messages (read by current user).
         if (res?.delete_at) {
           this.messages.forEach((m: any) => {
-            if (!m.read_at) {
+            if (!m.read_at && m.sender_id !== auth.user?.id) {
               m.read_at = new Date().toISOString()
               m.delete_at = res.delete_at
             }
@@ -33,6 +34,9 @@ export const useChatStore = defineStore('chat', {
       } catch {}
     },
     pushMessage(msg: any) {
+      if (this.messages.some((m: any) => m.id === msg.id)) {
+        return
+      }
       this.messages.push(msg)
       // Update chat last message.
       const chat = this.chats.find(c => c.id === msg.chat_id)
@@ -43,8 +47,10 @@ export const useChatStore = defineStore('chat', {
       }
     },
     applyReadReceipt(chatId: string, deleteAt: string) {
+      const auth = useAuthStore()
       this.messages.forEach((m: any) => {
-        if (m.chat_id === chatId && !m.read_at) {
+        // Apply receipt only to my outgoing unread messages.
+        if (m.chat_id === chatId && !m.read_at && m.sender_id === auth.user?.id) {
           m.read_at = new Date().toISOString()
           m.delete_at = deleteAt
         }

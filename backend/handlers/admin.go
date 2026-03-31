@@ -20,6 +20,16 @@ type AdminHandler struct {
 	db *mongo.Database
 }
 
+type createStickerRequest struct {
+	Name    string `json:"name" binding:"required"`
+	FileURL string `json:"file_url" binding:"required"`
+}
+
+type updateStickerRequest struct {
+	Name    string `json:"name"`
+	FileURL string `json:"file_url"`
+}
+
 func NewAdminHandler(db *mongo.Database) *AdminHandler {
 	return &AdminHandler{db: db}
 }
@@ -203,4 +213,129 @@ func (h *AdminHandler) ListStickers(c *gin.Context) {
 		stickers = append(stickers, s)
 	}
 	c.JSON(http.StatusOK, stickers)
+}
+
+// CreateSticker creates a sticker in a specific pack.
+func (h *AdminHandler) CreateSticker(c *gin.Context) {
+	packID, err := primitive.ObjectIDFromHex(c.Param("pack_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid pack_id"})
+		return
+	}
+
+	var req createStickerRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	count, _ := h.db.Collection("sticker_packs").CountDocuments(ctx, bson.M{"_id": packID})
+	if count == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "pack not found"})
+		return
+	}
+
+	encURL, err := services.Encrypt(req.FileURL)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "encryption error"})
+		return
+	}
+
+	sticker := models.Sticker{
+		ID:        primitive.NewObjectID(),
+		PackID:    packID,
+		Name:      req.Name,
+		FileURL:   encURL,
+		CreatedAt: time.Now(),
+	}
+
+	if _, err := h.db.Collection("stickers").InsertOne(ctx, sticker); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "insert error"})
+		return
+	}
+
+	sticker.FileURL = req.FileURL
+	c.JSON(http.StatusCreated, sticker)
+}
+
+// UpdateSticker updates sticker metadata and/or file URL.
+func (h *AdminHandler) UpdateSticker(c *gin.Context) {
+	stickerID, err := primitive.ObjectIDFromHex(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		return
+	}
+
+	var req updateStickerRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	set := bson.M{}
+	if req.Name != "" {
+		set["name"] = req.Name
+	}
+	if req.FileURL != "" {
+		encURL, err := services.Encrypt(req.FileURL)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "encryption error"})
+			return
+		}
+		set["file_url"] = encURL
+	}
+
+	if len(set) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "nothing to update"})
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	res, err := h.db.Collection("stickers").UpdateOne(ctx, bson.M{"_id": stickerID}, bson.M{"$set": set})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "update error"})
+		return
+	}
+	if res.MatchedCount == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "sticker not found"})
+		return
+	}
+
+	var updated models.Sticker
+	if err := h.db.Collection("stickers").FindOne(ctx, bson.M{"_id": stickerID}).Decode(&updated); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "database error"})
+		return
+	}
+	updated.FileURL = services.MustDecrypt(updated.FileURL)
+
+	c.JSON(http.StatusOK, updated)
+}
+
+// DeleteSticker removes a sticker by id.
+func (h *AdminHandler) DeleteSticker(c *gin.Context) {
+	stickerID, err := primitive.ObjectIDFromHex(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	res, err := h.db.Collection("stickers").DeleteOne(ctx, bson.M{"_id": stickerID})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "delete error"})
+		return
+	}
+	if res.DeletedCount == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "sticker not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "sticker deleted"})
 }
