@@ -77,6 +77,9 @@ func main() {
 		api.POST("/chats/:id/messages", chatH.SendMessage)
 		api.PUT("/chats/:id/read", chatH.MarkRead)
 
+		// Polling fallback for mobile/unreliable connections
+		api.POST("/events/poll", handlers.PollEvents(db))
+
 		api.POST("/upload", handlers.UploadFile)
 		api.POST("/upload/init", handlers.InitChunkedUpload)
 		api.PUT("/upload/:upload_id/parts/:part", handlers.UploadChunk)

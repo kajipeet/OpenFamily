@@ -78,6 +78,24 @@ export function useWebRTC() {
     callStore.endCall()
   }
 
+  function hangUp() {
+    endCall()
+  }
+
+  function toggleMicrophone(mute: boolean) {
+    if (!localStream) return
+    localStream.getAudioTracks().forEach(track => {
+      track.enabled = !mute
+    })
+  }
+
+  function toggleCamera(mute: boolean) {
+    if (!localStream) return
+    localStream.getVideoTracks().forEach(track => {
+      track.enabled = !mute
+    })
+  }
+
   function cleanup() {
     localStream?.getTracks().forEach(t => t.stop())
     pc?.close()
@@ -134,5 +152,5 @@ export function useWebRTC() {
   onMounted(listenSignals)
   onUnmounted(cleanup)
 
-  return { startCall, acceptCall, rejectCall, endCall, localVideo, remoteVideo }
+  return { startCall, acceptCall, rejectCall, endCall, hangUp, toggleMicrophone, toggleCamera, localVideo, remoteVideo }
 }

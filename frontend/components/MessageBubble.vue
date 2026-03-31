@@ -1,36 +1,87 @@
 <template>
-  <div :class="['flex', isMine ? 'justify-end' : 'justify-start']">
-    <div :class="['max-w-[82%] md:max-w-[70%] px-3 py-2 shadow-sm', isMine ? 'chat-bubble-out' : 'chat-bubble-in']">
+  <div :class="['flex gap-2 mb-3', isMine ? 'justify-end' : 'justify-start']">
+    <div :class="['max-w-[90%] sm:max-w-[85%] md:max-w-[70%] lg:max-w-[60%] px-3 sm:px-4 py-2 shadow-sm rounded-2xl', isMine ? 'chat-bubble-out' : 'chat-bubble-in']">
       <template v-if="message.type === 'text'">
-        <p class="text-sm whitespace-pre-wrap break-words">{{ decryptedContent }}</p>
+        <p class="text-sm sm:text-base whitespace-pre-wrap break-words leading-relaxed">{{ decryptedContent }}</p>
       </template>
 
       <template v-else-if="message.type === 'image'">
-        <img :src="resolvedFileUrl" :alt="decryptedFileName || 'image'" class="rounded-xl max-h-80 w-auto mb-2" />
-        <p v-if="decryptedContent" class="text-sm whitespace-pre-wrap break-words">{{ decryptedContent }}</p>
+        <div class="cursor-pointer mb-2 inline-block" @click="showImageModal">
+          <img 
+            :src="resolvedFileUrl" 
+            :alt="decryptedFileName || 'image'" 
+            class="rounded-xl max-h-64 sm:max-h-80 w-auto max-w-full object-cover hover:opacity-90 transition" 
+          />
+        </div>
+        <p v-if="decryptedContent" class="text-sm sm:text-base whitespace-pre-wrap break-words">{{ decryptedContent }}</p>
       </template>
 
       <template v-else-if="message.type === 'video'">
-        <video :src="resolvedFileUrl" controls class="rounded-xl max-h-80 w-auto mb-2" />
-        <p v-if="decryptedContent" class="text-sm whitespace-pre-wrap break-words">{{ decryptedContent }}</p>
+        <video 
+          :src="resolvedFileUrl" 
+          controls 
+          class="rounded-xl max-h-64 sm:max-h-80 w-auto max-w-full mb-2"
+          controlsList="nodownload"
+        />
+        <p v-if="decryptedContent" class="text-sm sm:text-base whitespace-pre-wrap break-words">{{ decryptedContent }}</p>
       </template>
 
       <template v-else-if="message.type === 'audio' || message.type === 'voice'">
-        <audio :src="resolvedFileUrl" controls class="w-full mb-2" />
-        <p v-if="decryptedContent" class="text-sm whitespace-pre-wrap break-words">{{ decryptedContent }}</p>
+        <div class="bg-black/5 rounded-xl p-2 sm:p-3 mb-2 w-full sm:min-w-60">
+          <div class="flex items-center gap-2">
+            <button class="flex-shrink-0 w-8 h-8 rounded-full bg-white hover:bg-gray-100 flex items-center justify-center transition" @click="togglePlayPause">
+              <span class="text-lg leading-none">{{ audioPlaying ? '⏸' : '▶' }}</span>
+            </button>
+            <audio 
+              ref="audioEl" 
+              :src="resolvedFileUrl"
+              class="flex-1 h-6"
+              @play="audioPlaying = true"
+              @pause="audioPlaying = false"
+              @ended="audioPlaying = false"
+            />
+          </div>
+          <div v-if="message.type === 'voice'" class="text-xs text-gray-500 mt-1 px-10">Voice message</div>
+        </div>
+        <p v-if="decryptedContent" class="text-sm sm:text-base whitespace-pre-wrap break-words">{{ decryptedContent }}</p>
       </template>
 
       <template v-else>
-        <a :href="resolvedFileUrl" :download="decryptedFileName || undefined" target="_blank" rel="noreferrer" class="text-sm underline break-all">
-          {{ decryptedFileName || decryptedContent || 'Attachment' }}
+        <a 
+          :href="resolvedFileUrl" 
+          :download="decryptedFileName || undefined" 
+          target="_blank" 
+          rel="noreferrer" 
+          class="text-sm sm:text-base text-blue-600 hover:text-blue-800 underline break-all flex items-center gap-1"
+        >
+          📎 {{ decryptedFileName || decryptedContent || 'Attachment' }}
         </a>
       </template>
 
-      <div class="mt-1 flex items-center justify-end gap-2 text-[11px] text-gray-500">
-        <span>{{ formatTime(message.created_at) }}</span>
-        <span v-if="message.delete_at" class="text-red-500">{{ countdown }}</span>
+      <div class="mt-2 flex items-center justify-between gap-2 text-xs sm:text-[11px] px-0.5">
+        <span class="text-gray-400 opacity-75">{{ formatTime(message.created_at) }}</span>
+        <span v-if="message.delete_at" class="text-red-500 font-medium animate-pulse">{{ countdown }}</span>
       </div>
     </div>
+  </div>
+
+  <!-- Image Modal -->
+  <div 
+    v-if="showModal && message.type === 'image'" 
+    class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+    @click.self="showModal = false"
+  >
+    <button 
+      class="absolute top-4 right-4 text-white text-2xl hover:opacity-70 transition"
+      @click="showModal = false"
+    >
+      ✕
+    </button>
+    <img 
+      :src="resolvedFileUrl" 
+      :alt="decryptedFileName || 'image'" 
+      class="max-h-screen max-w-screen object-contain"
+    />
   </div>
 </template>
 
@@ -47,6 +98,9 @@ const headers = useAuthHeaders()
 const decryptedContent = ref('')
 const decryptedFileName = ref('')
 const resolvedFileUrl = ref('')
+const showModal = ref(false)
+const audioPlaying = ref(false)
+const audioEl = ref<HTMLAudioElement>()
 
 const now = ref(Date.now())
 let timer: ReturnType<typeof setInterval> | null = null
@@ -128,6 +182,17 @@ const countdown = computed(() => {
   const seconds = totalSeconds % 60
   return `${minutes}:${String(seconds).padStart(2, '0')}`
 })
+
+function showImageModal() {
+  if (props.message.type === 'image') {
+    showModal.value = true
+  }
+}
+
+function togglePlayPause() {
+  if (!audioEl.value) return
+  audioPlaying.value ? audioEl.value.pause() : audioEl.value.play()
+}
 
 onMounted(() => {
   timer = setInterval(() => {

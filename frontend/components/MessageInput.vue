@@ -1,22 +1,31 @@
 <template>
-  <div class="border-t border-black/10 bg-white px-3 py-3 flex-shrink-0">
-    <form class="flex items-end gap-2" @submit.prevent="submitText">
-      <label class="shrink-0 cursor-pointer rounded-full p-2 hover:bg-gray-100 transition" title="Attach file">
+  <div class="border-t border-black/10 bg-white px-2 sm:px-3 py-2 sm:py-3 flex-shrink-0 w-full min-h-[60px] sm:min-h-[68px]">
+    <form class="flex items-end gap-1 sm:gap-1.5 md:gap-2" @submit.prevent="submitText">
+      <label class="shrink-0 cursor-pointer rounded-full p-1.5 sm:p-2 hover:bg-gray-100 transition text-base sm:text-lg" title="Attach file">
         <input class="hidden" type="file" @change="onFileChange" />
         <span>📎</span>
       </label>
-      <button type="button" class="shrink-0 rounded-full p-2 hover:bg-gray-100 transition" title="Record voice note" @click="toggleRecording">
+      <button 
+        type="button" 
+        class="shrink-0 rounded-full p-1.5 sm:p-2 hover:bg-gray-100 transition text-base sm:text-lg" 
+        title="Record voice note" 
+        @click="toggleRecording"
+        :class="isRecording ? 'bg-red-100' : ''"
+      >
         <span>{{ isRecording ? '⏹️' : '🎤' }}</span>
       </button>
       <textarea
         v-model="text"
         rows="1"
         placeholder="Write a message"
-        class="flex-1 resize-none rounded-2xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-tg-blue"
+        class="flex-1 resize-none rounded-2xl border border-gray-200 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm outline-none focus:ring-2 focus:ring-tg-blue min-h-[36px] sm:min-h-[40px] max-h-24"
         @input="handleInput"
         @keydown.enter.exact.prevent="submitText"
       />
-      <button class="shrink-0 rounded-full bg-tg-blue text-white w-11 h-11 hover:bg-tg-blue-dark transition">
+      <button 
+        type="submit"
+        class="shrink-0 rounded-full bg-tg-blue text-white w-9 h-9 sm:w-10 sm:h-10 hover:bg-tg-blue-dark transition flex items-center justify-center text-sm sm:text-base flex-shrink-0"
+      >
         ➤
       </button>
     </form>
@@ -139,22 +148,27 @@ async function toggleRecording() {
     return
   }
 
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-  recorder = new MediaRecorder(stream)
-  chunks = []
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    recorder = new MediaRecorder(stream)
+    chunks = []
 
-  recorder.ondataavailable = (event) => {
-    if (event.data.size > 0) chunks.push(event.data)
+    recorder.ondataavailable = (event) => {
+      if (event.data.size > 0) chunks.push(event.data)
+    }
+
+    recorder.onstop = async () => {
+      const blob = new Blob(chunks, { type: 'audio/webm' })
+      const file = new File([blob], `voice-${Date.now()}.webm`, { type: 'audio/webm' })
+      await sendEncryptedFile(file, 'voice')
+      stream.getTracks().forEach((track) => track.stop())
+    }
+
+    recorder.start()
+    isRecording.value = true
+  } catch (err) {
+    console.error('Microphone access denied:', err)
+    alert('Microphone access is required to record voice messages')
   }
-
-  recorder.onstop = async () => {
-    const blob = new Blob(chunks, { type: 'audio/webm' })
-    const file = new File([blob], `voice-${Date.now()}.webm`, { type: 'audio/webm' })
-    await sendEncryptedFile(file, 'voice')
-    stream.getTracks().forEach((track) => track.stop())
-  }
-
-  recorder.start()
-  isRecording.value = true
 }
 </script>

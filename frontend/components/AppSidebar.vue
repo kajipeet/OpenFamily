@@ -1,5 +1,5 @@
 <template>
-  <aside class="w-full md:w-72 lg:w-80 flex-shrink-0 bg-tg-sidebar flex flex-col h-full border-r border-tg-sidebar-darker">
+  <aside class="w-full flex-shrink-0 bg-tg-sidebar flex flex-col h-full border-r border-tg-sidebar-darker">
     <div class="flex items-center justify-between px-4 py-3 bg-tg-sidebar-darker flex-shrink-0">
       <div class="flex items-center gap-3 min-w-0">
         <UserAvatar :user="auth.user" size="sm" />
@@ -8,7 +8,7 @@
           <p class="text-tg-gray text-xs truncate">{{ auth.user?.tag }}</p>
         </div>
       </div>
-      <div class="flex items-center gap-1">
+      <div class="flex items-center gap-1 flex-shrink-0">
         <NuxtLink
           v-if="auth.isAdmin"
           to="/app/admin"
@@ -18,6 +18,7 @@
         <button
           @click="logout"
           class="text-white/60 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition text-sm"
+          title="Logout"
         >
           Exit
         </button>
