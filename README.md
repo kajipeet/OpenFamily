@@ -64,6 +64,20 @@ OpenFamily — self-hosted чат и видеозвонки на стеке Go +
 
 ## Быстрый старт
 
+Рекомендуемый способ (создаёт нужные директории для compose и поднимает стек):
+
+```bash
+bash scripts/up-compose.sh
+```
+
+Скрипт делает следующее:
+
+- создаёт `.env` из `.env.example`, если `.env` ещё не существует
+- создаёт `nginx/ssl` для bind mount сертификатов
+- запускает `docker compose up -d --build` (или `docker-compose` как fallback)
+
+Ручной вариант:
+
 1. Скопировать env:
 
 ```bash
