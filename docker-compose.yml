@@ -69,7 +69,6 @@ services:
 
   certbot:
     image: certbot/certbot:latest
-    profiles: ["manual"]
     environment:
       CERTBOT_DOMAIN: ${CERTBOT_DOMAIN:-}
       CERTBOT_EMAIL: ${CERTBOT_EMAIL:-}
