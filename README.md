@@ -94,7 +94,10 @@ docker compose up -d --build
 
 ## Certbot в Compose
 
-В `docker-compose.yml` добавлен сервис `certbot`.
+В `docker-compose.yml` добавлены сервисы:
+
+- `certbot` — ручной one-shot сервис для `certonly`/утилит certbot
+- `certbot-renew` — фоновый сервис автопродления
 
 ### Подготовка
 
@@ -131,7 +134,7 @@ docker compose restart nginx
 
 ### Автопродление
 
-Сервис `certbot` периодически выполняет `certbot renew` и через deploy-hook обновляет `nginx/ssl/fullchain.pem` и `nginx/ssl/privkey.pem`.
+Сервис `certbot-renew` периодически выполняет `certbot renew` и через deploy-hook обновляет `nginx/ssl/fullchain.pem` и `nginx/ssl/privkey.pem`.
 
 Рекомендуется после продления перезагружать nginx:
 
@@ -146,7 +149,8 @@ docker compose restart nginx
 - `frontend` — Nuxt приложение
 - `nginx` — reverse proxy, TLS, ACME challenge
 - `coturn` — TURN для звонков
-- `certbot` — выпуск/продление сертификатов
+- `certbot` — ручные операции certbot (certonly/export)
+- `certbot-renew` — автообновление сертификатов
 
 ## Примечание по локальной разработке
 
