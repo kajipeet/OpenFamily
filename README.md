@@ -94,10 +94,14 @@ docker compose up -d --build
 
 ## Certbot в Compose
 
-В `docker-compose.yml` добавлены сервисы:
+`certbot` встроен в контейнер `nginx`.
 
-- `certbot` — ручной one-shot сервис для `certonly`/утилит certbot
-- `certbot-renew` — фоновый сервис автопродления
+При старте `nginx` контейнер:
+
+- использует готовый сертификат из `/etc/letsencrypt/live/$CERTBOT_DOMAIN` (если есть)
+- если сертификата нет — временно запускается с self-signed
+- затем пытается выпустить сертификат через webroot challenge
+- в фоне выполняет `certbot renew` и делает `nginx -s reload` после обновления
 
 ### Подготовка
 
@@ -107,23 +111,26 @@ docker compose up -d --build
 
 ### Первичный выпуск сертификата
 
-После старта nginx:
+После старта стека (`docker compose up -d --build`) убедитесь, что:
+
+- домен указывает на IP сервера
+- порт 80 открыт извне
+
+Первичный выпуск делается автоматически внутри `nginx` контейнера. Проверка логов:
 
 ```bash
-docker compose run --rm certbot certonly \
+docker compose logs --tail=200 nginx
+```
+
+Если выпуск не прошёл автоматически, можно запустить вручную в том же контейнере:
+
+```bash
+docker compose exec nginx certbot certonly \
 	--webroot -w /var/www/certbot \
 	-d "$CERTBOT_DOMAIN" \
 	--email "$CERTBOT_EMAIL" \
-	--agree-tos --no-eff-email
-```
-
-Далее экспортировать сертификаты в `nginx/ssl`:
-
-```bash
-docker compose run --rm certbot sh -c '
-	cp /etc/letsencrypt/live/$CERTBOT_DOMAIN/fullchain.pem /exported-certs/fullchain.pem &&
-	cp /etc/letsencrypt/live/$CERTBOT_DOMAIN/privkey.pem /exported-certs/privkey.pem
-'
+	--agree-tos --no-eff-email \
+	--non-interactive
 ```
 
 Перезапустить nginx:
@@ -134,7 +141,7 @@ docker compose restart nginx
 
 ### Автопродление
 
-Сервис `certbot-renew` периодически выполняет `certbot renew` и через deploy-hook обновляет `nginx/ssl/fullchain.pem` и `nginx/ssl/privkey.pem`.
+Автопродление выполняется в фоне внутри `nginx` контейнера.
 
 Рекомендуется после продления перезагружать nginx:
 
@@ -147,10 +154,8 @@ docker compose restart nginx
 - `mongodb` — база
 - `backend` — Gin API + WebSocket
 - `frontend` — Nuxt приложение
-- `nginx` — reverse proxy, TLS, ACME challenge
+- `nginx` — reverse proxy + TLS + certbot (ACME)
 - `coturn` — TURN для звонков
-- `certbot` — ручные операции certbot (certonly/export)
-- `certbot-renew` — автообновление сертификатов
 
 ## Примечание по локальной разработке
 
