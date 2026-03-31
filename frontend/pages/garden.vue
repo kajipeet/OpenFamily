@@ -1,33 +1,32 @@
 <template>
-  <!-- Login page for the family messenger -->
-  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 p-4">
+  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-rose-50 via-green-50 to-amber-50 p-4">
     <div class="w-full max-w-sm">
       <div class="text-center mb-8">
-        <span class="text-5xl">🌿</span>
-        <h1 class="text-xl font-semibold text-green-900 mt-3">OpenFamily</h1>
-        <p class="text-sm text-gray-500 mt-1">Private family messenger sign in</p>
+        <span class="text-5xl">🌸</span>
+        <h1 class="text-xl font-serif font-semibold text-stone-900 mt-3">FloraBase</h1>
+        <p class="text-sm text-stone-400 mt-1">Member access</p>
       </div>
 
       <form @submit.prevent="login" class="bg-white rounded-2xl shadow-md p-6 space-y-4">
         <div>
-          <label class="block text-xs font-medium text-gray-600 mb-1">Username</label>
+          <label class="block text-xs font-medium text-stone-500 mb-1">Username</label>
           <input
             v-model="username"
             type="text"
             autocomplete="username"
             required
-            class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-green-300"
+            class="w-full border border-stone-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-green-200"
             placeholder="Username"
           />
         </div>
         <div>
-          <label class="block text-xs font-medium text-gray-600 mb-1">Password</label>
+          <label class="block text-xs font-medium text-stone-500 mb-1">Password</label>
           <input
             v-model="password"
             type="password"
             autocomplete="current-password"
             required
-            class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-green-300"
+            class="w-full border border-stone-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-green-200"
             placeholder="••••••••"
           />
         </div>
@@ -43,8 +42,8 @@
         </button>
       </form>
 
-      <p class="text-center text-xs text-gray-400 mt-6">
-        <NuxtLink to="/" class="hover:underline">← Back to Home</NuxtLink>
+      <p class="text-center text-xs text-stone-400 mt-6">
+        <NuxtLink to="/" class="hover:underline">← FloraBase</NuxtLink>
       </p>
     </div>
   </div>
@@ -54,7 +53,7 @@
 definePageMeta({ layout: false })
 
 useSeoMeta({
-  title: 'Sign In - OpenFamily',
+  title: 'Member Access — FloraBase',
   robots: 'noindex, nofollow',
 })
 

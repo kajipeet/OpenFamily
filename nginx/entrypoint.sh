@@ -32,6 +32,13 @@ nginx -g 'daemon off;' &
 NGINX_PID="$!"
 
 if [ -n "$CERTBOT_DOMAIN" ] && [ -n "$CERTBOT_EMAIL" ]; then
+  # Always upgrade to real cert if it already exists in the volume (e.g. after
+  # a container recreate where ssl/ still has a stale self-signed cert).
+  if copy_cert_if_exists; then
+    echo "[nginx] upgrading to existing Let's Encrypt certificate"
+    nginx -s reload || true
+  fi
+
   if [ ! -f "/etc/letsencrypt/live/$CERTBOT_DOMAIN/fullchain.pem" ]; then
     echo "[nginx] requesting initial Let's Encrypt certificate for $CERTBOT_DOMAIN"
     certbot certonly \
