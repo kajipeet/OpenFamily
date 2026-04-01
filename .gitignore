@@ -1,0 +1,31 @@
+# ---- Logs / temp ----
+*.log
+*.tmp
+*.swp
+*.swo
+.DS_Store
+
+# ---- Nuxt / Node ----
+frontend/node_modules/
+frontend/.nuxt/
+frontend/.output/
+frontend/.nitro/
+frontend/.cache/
+frontend/dist/
+frontend/.vite/
+frontend/.vercel/
+frontend/.env
+frontend/.env.*
+
+# ---- Go ----
+backend/server
+backend/bin/
+backend/dist/
+backend/coverage.out
+backend/*.test
+backend/.env
+backend/.env.*
+
+# ---- Generic build artifacts ----
+coverage/
+*.coverprofile

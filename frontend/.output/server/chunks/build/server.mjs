@@ -636,31 +636,31 @@ const _routes = [
     name: "index",
     path: "/",
     meta: __nuxt_page_meta$4 || {},
-    component: () => import('./index-Cp0v8i5x.mjs')
+    component: () => import('./index-BiwLccfs.mjs')
   },
   {
     name: "garden",
     path: "/garden",
     meta: __nuxt_page_meta$3 || {},
-    component: () => import('./garden-MO3RVaRd.mjs')
+    component: () => import('./garden-D1VE0I3l.mjs')
   },
   {
     name: "app-admin",
     path: "/app/admin",
     meta: { ...__nuxt_page_meta$2 || {}, ...{ "middleware": ["auth", "admin"] } },
-    component: () => import('./admin-CGF6lzix.mjs')
+    component: () => import('./admin-Cd1cqxz4.mjs')
   },
   {
     name: "app",
     path: "/app",
     meta: { ...__nuxt_page_meta$1 || {}, ...{ "middleware": "auth" } },
-    component: () => import('./index-B9gQsAiN.mjs')
+    component: () => import('./index-Db6pZ-lz.mjs')
   },
   {
     name: "app-chat-id",
     path: "/app/chat/:id()",
     meta: { ...__nuxt_page_meta || {}, ...{ "middleware": "auth" } },
-    component: () => import('./_id_-DnFR1b9b.mjs')
+    component: () => import('./_id_-Bp4sAmwT.mjs')
   }
 ];
 const _wrapInTransition = (props, children) => {
@@ -806,7 +806,7 @@ const globalMiddleware = [
   manifest_45route_45rule
 ];
 const namedMiddleware = {
-  admin: () => import('./admin-V9omd-mJ.mjs'),
+  admin: () => import('./admin-NM_ACrSH.mjs'),
   auth: () => import('./auth--aiZ_VMY.mjs')
 };
 const plugin$1 = /* @__PURE__ */ defineNuxtPlugin({
@@ -1437,7 +1437,7 @@ const plugins = [
   components_plugin_z4hgvsiddfKkfXTP6M8M4zG5Cb7sGnDhcryKVM45Di4
 ];
 const layouts = {
-  default: defineAsyncComponent(() => import('./default-B-Msk-3x.mjs').then((m) => m.default || m)),
+  default: defineAsyncComponent(() => import('./default-BnwgXWXc.mjs').then((m) => m.default || m)),
   public: defineAsyncComponent(() => import('./public-1EtkA2Zk.mjs').then((m) => m.default || m))
 };
 const routeRulesMatcher = _routeRulesMatcher;
