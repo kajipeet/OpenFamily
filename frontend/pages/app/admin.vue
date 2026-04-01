@@ -1,6 +1,9 @@
 <template>
   <div class="p-2 sm:p-4 max-w-4xl mx-auto w-full">
     <h1 class="text-xl font-semibold text-gray-100 mb-6">👤 Admin Panel</h1>
+    <p v-if="panelError" class="mb-4 text-xs text-red-300 bg-red-900/30 border border-red-500/40 rounded-lg px-3 py-2">
+      {{ panelError }}
+    </p>
 
     <!-- Create user -->
     <section class="bg-tg-sidebar rounded-2xl p-5 mb-6">
@@ -201,6 +204,7 @@ const loadingPacks = ref(false)
 const loadingStickers = ref(false)
 const creatingSticker = ref(false)
 const stickerError = ref('')
+const panelError = ref('')
 const newSticker = reactive({ name: '', fileUrl: '', file: null as File | null })
 const editingStickerId = ref('')
 const savingEdit = ref(false)
@@ -209,8 +213,14 @@ const editSticker = reactive({ name: '', fileUrl: '', file: null as File | null 
 
 async function loadUsers() {
   loadingUsers.value = true
-  users.value = await $fetch('/api/admin/users', { headers }) as any[]
-  loadingUsers.value = false
+  try {
+    users.value = await $fetch('/api/admin/users', { headers }) as any[]
+  } catch (e: any) {
+    panelError.value = e?.data?.error ?? e?.message ?? 'Failed to load admin users'
+    users.value = []
+  } finally {
+    loadingUsers.value = false
+  }
 }
 
 async function createUser() {
@@ -246,6 +256,7 @@ async function createPack() {
 
 async function loadPacks() {
   loadingPacks.value = true
+  panelError.value = ''
   try {
     packs.value = await $fetch('/api/sticker-packs', { headers }) as any[]
     if (packs.value.length > 0) {
@@ -257,6 +268,10 @@ async function loadPacks() {
       selectedPackId.value = ''
       stickers.value = []
     }
+  } catch (e: any) {
+    panelError.value = e?.data?.error ?? e?.message ?? 'Failed to load sticker packs'
+    packs.value = []
+    stickers.value = []
   } finally {
     loadingPacks.value = false
   }
@@ -270,6 +285,9 @@ async function loadStickers(packId: string) {
   loadingStickers.value = true
   try {
     stickers.value = await $fetch(`/api/sticker-packs/${packId}/stickers`, { headers }) as any[]
+  } catch (e: any) {
+    stickerError.value = e?.data?.error ?? e?.message ?? 'Failed to load stickers'
+    stickers.value = []
   } finally {
     loadingStickers.value = false
   }
@@ -377,11 +395,17 @@ async function deleteSticker(id: string) {
 }
 
 watch(selectedPackId, (id) => {
-  if (id) loadStickers(id)
+  if (id) {
+    loadStickers(id).catch(() => {})
+  }
 })
 
 onMounted(async () => {
-  await loadUsers()
-  await loadPacks()
+  try {
+    await loadUsers()
+    await loadPacks()
+  } catch {
+    // Keep admin page visible even when some API requests fail.
+  }
 })
 </script>

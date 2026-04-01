@@ -208,8 +208,12 @@ func (h *AdminHandler) ListStickers(c *gin.Context) {
 	var stickers []models.Sticker
 	for cursor.Next(ctx) {
 		var s models.Sticker
-		cursor.Decode(&s)
-		s.FileURL = services.MustDecrypt(s.FileURL)
+		if err := cursor.Decode(&s); err != nil {
+			continue
+		}
+		if s.FileURL != "" {
+			s.FileURL = services.MustDecrypt(s.FileURL)
+		}
 		stickers = append(stickers, s)
 	}
 	c.JSON(http.StatusOK, stickers)

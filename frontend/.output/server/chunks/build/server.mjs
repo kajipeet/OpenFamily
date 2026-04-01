@@ -648,7 +648,7 @@ const _routes = [
     name: "app-admin",
     path: "/app/admin",
     meta: { ...__nuxt_page_meta$2 || {}, ...{ "middleware": ["auth", "admin"] } },
-    component: () => import('./admin-B0Eqxlo5.mjs')
+    component: () => import('./admin-D1jZ64fo.mjs')
   },
   {
     name: "app",
