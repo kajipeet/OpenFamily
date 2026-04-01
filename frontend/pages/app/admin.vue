@@ -1,5 +1,5 @@
 <template>
-  <div class="p-6 max-w-2xl mx-auto w-full">
+  <div class="p-2 sm:p-4 max-w-4xl mx-auto w-full">
     <h1 class="text-xl font-semibold text-gray-100 mb-6">👤 Admin Panel</h1>
 
     <!-- Create user -->
@@ -183,7 +183,7 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({ layout: 'default', middleware: ['auth', 'admin'] })
+definePageMeta({ layout: 'admin' as any, middleware: ['auth', 'admin'] })
 
 const auth = useAuthStore()
 const headers = useAuthHeaders()

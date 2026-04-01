@@ -628,7 +628,7 @@ function getRouteRules(arg) {
 }
 const __nuxt_page_meta$4 = { layout: "public" };
 const __nuxt_page_meta$3 = { layout: false };
-const __nuxt_page_meta$2 = { layout: "default" };
+const __nuxt_page_meta$2 = { layout: "admin" };
 const __nuxt_page_meta$1 = { layout: "default" };
 const __nuxt_page_meta = { layout: "default" };
 const _routes = [
@@ -648,7 +648,7 @@ const _routes = [
     name: "app-admin",
     path: "/app/admin",
     meta: { ...__nuxt_page_meta$2 || {}, ...{ "middleware": ["auth", "admin"] } },
-    component: () => import('./admin-Cd1cqxz4.mjs')
+    component: () => import('./admin-B0Eqxlo5.mjs')
   },
   {
     name: "app",
@@ -806,7 +806,7 @@ const globalMiddleware = [
   manifest_45route_45rule
 ];
 const namedMiddleware = {
-  admin: () => import('./admin-NM_ACrSH.mjs'),
+  admin: () => import('./admin-DcxJjcgC.mjs'),
   auth: () => import('./auth--aiZ_VMY.mjs')
 };
 const plugin$1 = /* @__PURE__ */ defineNuxtPlugin({
@@ -1437,6 +1437,7 @@ const plugins = [
   components_plugin_z4hgvsiddfKkfXTP6M8M4zG5Cb7sGnDhcryKVM45Di4
 ];
 const layouts = {
+  admin: defineAsyncComponent(() => import('./admin-DkawjHSu.mjs').then((m) => m.default || m)),
   default: defineAsyncComponent(() => import('./default-BnwgXWXc.mjs').then((m) => m.default || m)),
   public: defineAsyncComponent(() => import('./public-1EtkA2Zk.mjs').then((m) => m.default || m))
 };

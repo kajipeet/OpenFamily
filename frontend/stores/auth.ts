@@ -14,7 +14,16 @@ export const useAuthStore = defineStore('auth', {
       if (import.meta.client) {
         this.token = localStorage.getItem('of_token')
         const raw = localStorage.getItem('of_user')
-        this.user = raw ? JSON.parse(raw) : null
+        if (!raw) {
+          this.user = null
+          return
+        }
+        try {
+          this.user = JSON.parse(raw)
+        } catch {
+          this.user = null
+          localStorage.removeItem('of_user')
+        }
       }
     },
     set(token: string, user: any) {
