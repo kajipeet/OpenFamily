@@ -15,6 +15,7 @@ const (
 	WSTypeNewMessage     WSMessageType = "message"
 	WSTypeRead           WSMessageType = "read"
 	WSTypeTyping         WSMessageType = "typing"
+	WSTypeSignal         WSMessageType = "signal"
 	WSTypeCallOffer      WSMessageType = "call_offer"
 	WSTypeCallAnswer     WSMessageType = "call_answer"
 	WSTypeCallICE        WSMessageType = "call_ice"

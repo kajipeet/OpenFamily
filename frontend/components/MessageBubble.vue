@@ -1,6 +1,14 @@
 <template>
   <div :class="['flex gap-2 mb-3', isMine ? 'justify-end' : 'justify-start']">
     <div :class="['max-w-[90%] sm:max-w-[85%] md:max-w-[70%] lg:max-w-[60%] px-3 sm:px-4 py-2 shadow-sm rounded-2xl', isMine ? 'chat-bubble-out' : 'chat-bubble-in']">
+      <div
+        v-if="replyToMessage"
+        class="mb-2 px-2 py-1.5 rounded-lg border border-black/10 bg-black/5"
+      >
+        <p class="text-[11px] text-gray-500">Ответ</p>
+        <p class="text-xs text-gray-700 truncate">{{ replyLabel }}</p>
+      </div>
+
       <template v-if="message.type === 'text'">
         <p class="text-sm sm:text-base whitespace-pre-wrap break-words leading-relaxed">{{ decryptedContent }}</p>
       </template>
@@ -41,7 +49,7 @@
               @ended="audioPlaying = false"
             />
           </div>
-          <div v-if="message.type === 'voice'" class="text-xs text-gray-500 mt-1 px-10">Voice message</div>
+          <div v-if="message.type === 'voice'" class="text-xs text-gray-500 mt-1 px-10">Голосовое сообщение</div>
         </div>
         <p v-if="decryptedContent" class="text-sm sm:text-base whitespace-pre-wrap break-words">{{ decryptedContent }}</p>
       </template>
@@ -54,13 +62,16 @@
           rel="noreferrer" 
           class="text-sm sm:text-base text-blue-600 hover:text-blue-800 underline break-all flex items-center gap-1"
         >
-          📎 {{ decryptedFileName || decryptedContent || 'Attachment' }}
+          📎 {{ decryptedFileName || decryptedContent || 'Прикреплённый файл' }}
         </a>
       </template>
 
       <div class="mt-2 flex items-center justify-between gap-2 text-xs sm:text-[11px] px-0.5">
         <span class="text-gray-400 opacity-75">{{ formatTime(message.created_at) }}</span>
-        <span v-if="message.delete_at" class="text-red-500 font-medium animate-pulse">{{ countdown }}</span>
+        <div class="flex items-center gap-2">
+          <button class="text-gray-400 hover:text-gray-600 transition" title="Ответить" @click="emit('reply', message)">↩</button>
+          <span v-if="message.delete_at" class="text-red-500 font-medium animate-pulse">{{ countdown }}</span>
+        </div>
       </div>
     </div>
   </div>
@@ -90,7 +101,10 @@ const props = defineProps({
   message: { type: Object, required: true },
   isMine: { type: Boolean, default: false },
   peerPublicKey: { type: String, default: '' },
+  replyToMessage: { type: Object, default: null },
 })
+
+const emit = defineEmits(['reply'])
 
 const e2ee = useE2EE()
 const headers = useAuthHeaders()
@@ -137,7 +151,7 @@ async function loadDecryptedData() {
         props.message.chat_id,
       )
     } catch {
-      decryptedContent.value = '[encrypted]'
+      decryptedContent.value = '[зашифровано]'
     }
   }
 
@@ -150,7 +164,7 @@ async function loadDecryptedData() {
         props.message.chat_id,
       )
     } catch {
-      decryptedFileName.value = 'Encrypted file'
+      decryptedFileName.value = 'Зашифрованный файл'
     }
   }
 
@@ -181,6 +195,16 @@ const countdown = computed(() => {
   const minutes = Math.floor(totalSeconds / 60)
   const seconds = totalSeconds % 60
   return `${minutes}:${String(seconds).padStart(2, '0')}`
+})
+
+const replyLabel = computed(() => {
+  if (!props.replyToMessage) return ''
+  if (props.replyToMessage.type === 'text') return 'Зашифрованное сообщение'
+  if (props.replyToMessage.type === 'image') return 'Изображение'
+  if (props.replyToMessage.type === 'video') return 'Видео'
+  if (props.replyToMessage.type === 'voice') return 'Голосовое сообщение'
+  if (props.replyToMessage.type === 'audio') return 'Аудиофайл'
+  return 'Прикреплённый файл'
 })
 
 function showImageModal() {

@@ -636,31 +636,31 @@ const _routes = [
     name: "index",
     path: "/",
     meta: __nuxt_page_meta$4 || {},
-    component: () => import('./index-BiwLccfs.mjs')
+    component: () => import('./index-BK79pkw3.mjs')
   },
   {
     name: "garden",
     path: "/garden",
     meta: __nuxt_page_meta$3 || {},
-    component: () => import('./garden-D1VE0I3l.mjs')
+    component: () => import('./garden-B1XUt5tP.mjs')
   },
   {
     name: "app-admin",
     path: "/app/admin",
     meta: { ...__nuxt_page_meta$2 || {}, ...{ "middleware": ["auth", "admin"] } },
-    component: () => import('./admin-D1jZ64fo.mjs')
+    component: () => import('./admin-kBFGGnxv.mjs')
   },
   {
     name: "app",
     path: "/app",
     meta: { ...__nuxt_page_meta$1 || {}, ...{ "middleware": "auth" } },
-    component: () => import('./index-Db6pZ-lz.mjs')
+    component: () => import('./index-B0KKTNI3.mjs')
   },
   {
     name: "app-chat-id",
     path: "/app/chat/:id()",
     meta: { ...__nuxt_page_meta || {}, ...{ "middleware": "auth" } },
-    component: () => import('./_id_-Bp4sAmwT.mjs')
+    component: () => import('./_id_-BHINVlAx.mjs')
   }
 ];
 const _wrapInTransition = (props, children) => {
@@ -806,7 +806,7 @@ const globalMiddleware = [
   manifest_45route_45rule
 ];
 const namedMiddleware = {
-  admin: () => import('./admin-DcxJjcgC.mjs'),
+  admin: () => import('./admin-_xM5PUSg.mjs'),
   auth: () => import('./auth--aiZ_VMY.mjs')
 };
 const plugin$1 = /* @__PURE__ */ defineNuxtPlugin({
@@ -1437,8 +1437,8 @@ const plugins = [
   components_plugin_z4hgvsiddfKkfXTP6M8M4zG5Cb7sGnDhcryKVM45Di4
 ];
 const layouts = {
-  admin: defineAsyncComponent(() => import('./admin-DkawjHSu.mjs').then((m) => m.default || m)),
-  default: defineAsyncComponent(() => import('./default-BnwgXWXc.mjs').then((m) => m.default || m)),
+  admin: defineAsyncComponent(() => import('./admin-BFZ18QoO.mjs').then((m) => m.default || m)),
+  default: defineAsyncComponent(() => import('./default-BUvt6n_u.mjs').then((m) => m.default || m)),
   public: defineAsyncComponent(() => import('./public-1EtkA2Zk.mjs').then((m) => m.default || m))
 };
 const routeRulesMatcher = _routeRulesMatcher;

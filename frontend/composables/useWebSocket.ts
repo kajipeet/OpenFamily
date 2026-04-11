@@ -1,4 +1,6 @@
 // Singleton WebSocket connection shared across the app.
+import { useNotificationStore } from '~/stores/notifications'
+
 let ws: WebSocket | null = null
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null
 let heartbeatTimer: ReturnType<typeof setInterval> | null = null
@@ -13,6 +15,7 @@ export function useWebSocket() {
   const auth = useAuthStore()
   const chatStore = useChatStore()
   const callStore = useCallStore()
+  const notificationStore = useNotificationStore()
   const config = useRuntimeConfig()
 
   function connect() {
@@ -145,7 +148,21 @@ export function useWebSocket() {
   }
 
   function sendTyping(receiverId: string, chatId: string) {
-    sendRaw({ type: 'typing', receiver_id: receiverId, chat_id: chatId })
+    sendRaw({
+      type: 'signal',
+      receiver_id: receiverId,
+      data: JSON.stringify({
+        k: 't',
+        p: { chat_id: chatId },
+      }),
+    })
+  }
+
+  function shouldNotifyChat(chatId?: string) {
+    if (!chatId) return true
+    const hidden = !import.meta.client || document.visibilityState !== 'visible'
+    const notActive = chatStore.activeChatId !== chatId
+    return hidden || notActive
   }
 
   function extractEventTimestamp(evt: any) {
@@ -169,6 +186,11 @@ export function useWebSocket() {
         if (msg.data) {
           const parsed = typeof msg.data === 'string' ? JSON.parse(msg.data) : msg.data
           chatStore.pushMessage(parsed)
+          if (parsed?.sender_id !== auth.user?.id && shouldNotifyChat(parsed?.chat_id)) {
+            const chat = chatStore.chats.find((c: any) => c.id === parsed.chat_id)
+            const title = chat?.other_user?.display_name || 'Новое сообщение'
+            notificationStore.push(title, 'У вас новое зашифрованное сообщение', { chatId: parsed.chat_id })
+          }
         }
         break
 
@@ -187,10 +209,44 @@ export function useWebSocket() {
         chatStore.setTyping(msg.sender_id)
         break
 
+      case 'signal':
+        if (!msg.data) break
+        try {
+          const signal = typeof msg.data === 'string' ? JSON.parse(msg.data) : msg.data
+          switch (signal?.k) {
+            case 't':
+              chatStore.setTyping(msg.sender_id)
+              break
+            case 'r':
+              callStore.receiveCall(
+                msg.sender_id,
+                signal?.p?.display_name ?? msg.sender_id,
+                signal?.p?.type ?? 'video',
+                signal?.p?.sdp,
+              )
+              notificationStore.push(signal?.p?.display_name || 'Входящий звонок', 'Нажмите для ответа')
+              break
+            case 'a':
+              window.dispatchEvent(new CustomEvent('webrtc-signal', { detail: { type: 'call_answer', data: JSON.stringify({ sdp: signal?.p?.sdp }) } }))
+              break
+            case 'i':
+              window.dispatchEvent(new CustomEvent('webrtc-signal', { detail: { type: 'call_ice', data: JSON.stringify({ candidate: signal?.p?.candidate }) } }))
+              break
+            case 'e':
+              window.dispatchEvent(new CustomEvent('webrtc-signal', { detail: { type: 'call_end' } }))
+              break
+            case 'x':
+              window.dispatchEvent(new CustomEvent('webrtc-signal', { detail: { type: 'call_reject' } }))
+              break
+          }
+        } catch {}
+        break
+
       case 'call_ring':
         if (msg.data) {
           const d = typeof msg.data === 'string' ? JSON.parse(msg.data) : msg.data
           callStore.receiveCall(msg.sender_id, d.display_name ?? msg.sender_id, d.type ?? 'video', d.sdp)
+          notificationStore.push(d.display_name || 'Входящий звонок', 'Нажмите для ответа')
         }
         break
 

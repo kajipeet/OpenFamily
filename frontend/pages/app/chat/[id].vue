@@ -9,14 +9,14 @@
       <div class="flex-1 min-w-0">
         <p class="text-white font-medium text-sm sm:text-base truncate">{{ otherUser.display_name }}</p>
         <p class="text-tg-gray text-xs sm:text-sm leading-tight">
-          {{ chatStore.isTyping(otherUser.id) ? 'typing…' : (otherUser.is_online ? 'online' : formatLastSeen(otherUser.last_seen)) }}
+          {{ chatStore.isTyping(otherUser.id) ? 'печатает…' : (otherUser.is_online ? 'в сети' : formatLastSeen(otherUser.last_seen)) }}
         </p>
       </div>
       <div class="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-        <button @click="startCall('audio')" class="text-white/70 hover:text-white transition p-1.5 sm:p-2 hover:bg-white/10 rounded text-lg flex-shrink-0" title="Voice call">
+        <button @click="startCall('audio')" class="text-white/70 hover:text-white transition p-1.5 sm:p-2 hover:bg-white/10 rounded text-lg flex-shrink-0" title="Голосовой звонок">
           📞
         </button>
-        <button @click="startCall('video')" class="text-white/70 hover:text-white transition p-1.5 sm:p-2 hover:bg-white/10 rounded text-lg flex-shrink-0" title="Video call">
+        <button @click="startCall('video')" class="text-white/70 hover:text-white transition p-1.5 sm:p-2 hover:bg-white/10 rounded text-lg flex-shrink-0" title="Видеозвонок">
           📹
         </button>
       </div>
@@ -24,17 +24,23 @@
 
     <!-- Messages container -->
     <div ref="msgContainer" class="flex-1 overflow-y-auto px-2 sm:px-4 py-3 sm:py-4 space-y-0 w-full min-h-0" @scroll="handleScroll">
-      <div v-if="loading" class="text-center text-sm text-gray-400 py-4">Loading messages…</div>
+      <div v-if="loading" class="text-center text-sm text-gray-400 py-4">Загрузка сообщений…</div>
       <div v-else-if="chatStore.messages.length === 0" class="text-center text-sm text-gray-400 py-8">
-        No messages yet. Start the conversation!
+        Сообщений пока нет. Начните разговор!
       </div>
-      <MessageBubble
+      <div
         v-for="msg in chatStore.messages"
         :key="msg.id"
-        :message="msg"
-        :is-mine="msg.sender_id === auth.user?.id"
-        :peer-public-key="otherUser?.e2ee_public_key ?? ''"
-      />
+        :data-unread-incoming="!msg.read_at && msg.sender_id !== auth.user?.id ? '1' : '0'"
+      >
+        <MessageBubble
+          :message="msg"
+          :is-mine="msg.sender_id === auth.user?.id"
+          :peer-public-key="otherUser?.e2ee_public_key ?? ''"
+          :reply-to-message="messageById[msg.reply_to_id] || null"
+          @reply="setReply"
+        />
+      </div>
       <div ref="bottomAnchor" />
     </div>
 
@@ -43,6 +49,8 @@
       :chat-id="chatId"
       :receiver-id="otherUser?.id ?? ''"
       :receiver-public-key="otherUser?.e2ee_public_key ?? ''"
+      :reply-to="replyTarget"
+      @clear-reply="clearReply"
       @sent="scrollToBottom"
     />
   </div>
@@ -50,6 +58,7 @@
 
 <script setup lang="ts">
 import { formatDistanceToNow } from 'date-fns'
+import { ru } from 'date-fns/locale'
 definePageMeta({ layout: 'default', middleware: 'auth' })
 
 const route = useRoute()
@@ -66,6 +75,9 @@ const msgContainer = ref<HTMLElement>()
 const bottomAnchor = ref<HTMLElement>()
 const otherUser = ref<any>(null)
 const loading = ref(false)
+const replyTarget = ref<any>(null)
+let readObserver: IntersectionObserver | null = null
+let markInFlight = false
 
 onMounted(async () => {
   loading.value = true
@@ -81,21 +93,103 @@ onMounted(async () => {
     if (chat) otherUser.value = chat.other_user
 
     await chatStore.loadMessages(chatId)
-    await chatStore.markAllRead(chatId)
+    setupReadObserver()
     scrollToBottom()
   } finally {
     loading.value = false
   }
 })
 
-watch(() => chatStore.messages.length, () => scrollToBottom())
+onUnmounted(() => {
+  if (readObserver) {
+    readObserver.disconnect()
+    readObserver = null
+  }
+  document.removeEventListener('visibilitychange', onVisibilityChange)
+})
+
+watch(() => chatStore.messages.length, async () => {
+  scrollToBottom()
+  await nextTick()
+  setupReadObserver()
+})
+
+const messageById = computed(() => {
+  const map: Record<string, any> = {}
+  chatStore.messages.forEach((m: any) => {
+    if (m?.id) map[m.id] = m
+  })
+  return map
+})
+
+function setReply(msg: any) {
+  replyTarget.value = msg
+}
+
+function clearReply() {
+  replyTarget.value = null
+}
 
 function scrollToBottom() {
   nextTick(() => bottomAnchor.value?.scrollIntoView({ behavior: 'smooth' }))
 }
 
 function handleScroll() {
-  // Potential future: infinite scroll load older messages
+  maybeMarkRead()
+}
+
+function hasUnreadIncoming() {
+  return chatStore.messages.some((m: any) => !m.read_at && m.sender_id !== auth.user?.id)
+}
+
+function setupReadObserver() {
+  if (!import.meta.client || !msgContainer.value) return
+  if (!hasUnreadIncoming()) return
+
+  if (readObserver) {
+    readObserver.disconnect()
+  }
+
+  readObserver = new IntersectionObserver((entries) => {
+    if (entries.some((e) => e.isIntersecting)) {
+      maybeMarkRead()
+    }
+  }, {
+    root: msgContainer.value,
+    threshold: 0.7,
+  })
+
+  const nodes = msgContainer.value.querySelectorAll<HTMLElement>('[data-unread-incoming="1"]')
+  nodes.forEach((node) => readObserver?.observe(node))
+
+  document.removeEventListener('visibilitychange', onVisibilityChange)
+  document.addEventListener('visibilitychange', onVisibilityChange)
+
+  maybeMarkRead()
+}
+
+function onVisibilityChange() {
+  if (document.visibilityState === 'visible') {
+    maybeMarkRead()
+  }
+}
+
+async function maybeMarkRead() {
+  if (markInFlight) return
+  if (!hasUnreadIncoming()) return
+  if (!msgContainer.value) return
+  if (document.visibilityState !== 'visible') return
+
+  const visibleUnread = msgContainer.value.querySelectorAll('[data-unread-incoming="1"]')
+  if (!visibleUnread.length) return
+
+  markInFlight = true
+  try {
+    await chatStore.markAllRead(chatId)
+  } finally {
+    markInFlight = false
+    setupReadObserver()
+  }
 }
 
 function startCall(type: 'audio' | 'video') {
@@ -104,7 +198,7 @@ function startCall(type: 'audio' | 'video') {
 }
 
 function formatLastSeen(ts: string) {
-  if (!ts) return 'offline'
-  return 'last seen ' + formatDistanceToNow(new Date(ts), { addSuffix: true })
+  if (!ts) return 'не в сети'
+  return 'был(а) ' + formatDistanceToNow(new Date(ts), { addSuffix: true, locale: ru })
 }
 </script>

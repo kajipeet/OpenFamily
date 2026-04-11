@@ -195,10 +195,35 @@ func (h *ChatHandler) SendMessage(c *gin.Context) {
 		return
 	}
 
+	var replyToID *primitive.ObjectID
+	if req.ReplyToID != "" {
+		replyID, parseErr := primitive.ObjectIDFromHex(req.ReplyToID)
+		if parseErr != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid reply_to_id"})
+			return
+		}
+
+		count, countErr := h.db.Collection("messages").CountDocuments(ctx, bson.M{
+			"_id":     replyID,
+			"chat_id": chatID,
+		})
+		if countErr != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "database error"})
+			return
+		}
+		if count == 0 {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "reply target not found"})
+			return
+		}
+
+		replyToID = &replyID
+	}
+
 	msg := models.Message{
 		ID:            primitive.NewObjectID(),
 		ChatID:        chatID,
 		SenderID:      senderID,
+		ReplyToID:     replyToID,
 		Type:          req.Type,
 		Content:       req.Content,
 		Nonce:         req.Nonce,

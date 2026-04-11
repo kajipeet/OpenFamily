@@ -4,23 +4,23 @@
       <div class="text-center mb-8">
         <span class="text-5xl">🌸</span>
         <h1 class="text-xl font-serif font-semibold text-stone-900 mt-3">FloraBase</h1>
-        <p class="text-sm text-stone-400 mt-1">Member access</p>
+        <p class="text-sm text-stone-400 mt-1">Вход для участников</p>
       </div>
 
       <form @submit.prevent="login" class="bg-white rounded-2xl shadow-md p-6 space-y-4">
         <div>
-          <label class="block text-xs font-medium text-stone-500 mb-1">Username</label>
+          <label class="block text-xs font-medium text-stone-500 mb-1">Логин</label>
           <input
             v-model="username"
             type="text"
             autocomplete="username"
             required
             class="w-full border border-stone-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-green-200"
-            placeholder="Username"
+            placeholder="Логин"
           />
         </div>
         <div>
-          <label class="block text-xs font-medium text-stone-500 mb-1">Password</label>
+          <label class="block text-xs font-medium text-stone-500 mb-1">Пароль</label>
           <input
             v-model="password"
             type="password"
@@ -38,7 +38,7 @@
           :disabled="loading"
           class="w-full bg-green-700 hover:bg-green-800 text-white font-medium rounded-xl py-2.5 text-sm transition disabled:opacity-60"
         >
-          {{ loading ? 'Signing in…' : 'Sign In' }}
+          {{ loading ? 'Вход…' : 'Войти' }}
         </button>
       </form>
 
@@ -53,7 +53,7 @@
 definePageMeta({ layout: false })
 
 useSeoMeta({
-  title: 'Member Access — FloraBase',
+  title: 'Вход для участников — FloraBase',
   robots: 'noindex, nofollow',
 })
 
@@ -72,7 +72,7 @@ async function login() {
     await loginUser(username.value, password.value)
     await router.push('/app')
   } catch (e: any) {
-    error.value = e.message || 'Invalid credentials'
+    error.value = e.message || 'Неверные данные'
   } finally {
     loading.value = false
   }

@@ -17,9 +17,10 @@ export function useWebRTC() {
   const iceServers = turnHost
     ? [{
         urls: [
+          `turn:${turnHost}:80?transport=tcp`,
           `turn:${turnHost}:3478?transport=tcp`,
-          `turns:${turnHost}:5349?transport=tcp`,
           `turns:${turnHost}:443?transport=tcp`,
+          `turns:${turnHost}:5349?transport=tcp`,
         ],
         username: turnUsername,
         credential: turnCredential,
@@ -28,6 +29,14 @@ export function useWebRTC() {
         { urls: 'stun:stun.l.google.com:19302' },
         { urls: 'stun:stun1.l.google.com:19302' },
       ]
+
+  function sendSignal(receiverId: string, kind: string, payload?: any) {
+    sendRaw({
+      type: 'signal',
+      receiver_id: receiverId,
+      data: JSON.stringify({ k: kind, p: payload ?? {} }),
+    })
+  }
 
   async function startCall(peerId: string, type: 'video' | 'audio') {
     await setupPC()
@@ -38,14 +47,10 @@ export function useWebRTC() {
     const offer = await pc!.createOffer()
     await pc!.setLocalDescription(offer)
 
-    sendRaw({
-      type: 'call_ring',
-      receiver_id: peerId,
-      data: JSON.stringify({
+    sendSignal(peerId, 'r', {
         sdp: offer,
         type: type,
         display_name: auth.user?.display_name,
-      }),
     })
   }
 
@@ -59,7 +64,7 @@ export function useWebRTC() {
     const answer = await pc!.createAnswer()
     await pc!.setLocalDescription(answer)
 
-    sendRaw({ type: 'call_answer', receiver_id: peerId, data: JSON.stringify({ sdp: answer }) })
+    sendSignal(peerId, 'a', { sdp: answer })
   }
 
   async function handleAnswer(sdp: RTCSessionDescriptionInit) {
@@ -73,12 +78,12 @@ export function useWebRTC() {
   }
 
   function rejectCall(peerId: string) {
-    sendRaw({ type: 'call_reject', receiver_id: peerId })
+    sendSignal(peerId, 'x')
     callStore.endCall()
   }
 
   function endCall() {
-    sendRaw({ type: 'call_end', receiver_id: callStore.peerId })
+    sendSignal(callStore.peerId, 'e')
     cleanup()
     callStore.endCall()
   }
@@ -119,11 +124,7 @@ export function useWebRTC() {
 
     pc.onicecandidate = (e) => {
       if (e.candidate) {
-        sendRaw({
-          type: 'call_ice',
-          receiver_id: callStore.peerId,
-          data: JSON.stringify({ candidate: e.candidate }),
-        })
+        sendSignal(callStore.peerId, 'i', { candidate: e.candidate })
       }
     }
 

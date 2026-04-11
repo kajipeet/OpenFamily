@@ -31,9 +31,14 @@ export const useChatStore = defineStore('chat', {
             }
           })
         }
+        const chat = this.chats.find((c: any) => c.id === chatId)
+        if (chat) {
+          chat.unread_count = 0
+        }
       } catch {}
     },
     pushMessage(msg: any) {
+      const auth = useAuthStore()
       if (this.messages.some((m: any) => m.id === msg.id)) {
         return
       }
@@ -43,7 +48,9 @@ export const useChatStore = defineStore('chat', {
       if (chat) {
         chat.last_message = msg.type === 'text' ? '[encrypted message]' : '[encrypted file]'
         chat.last_message_at = msg.created_at
-        chat.unread_count = (chat.unread_count ?? 0) + 1
+        if (msg.sender_id !== auth.user?.id) {
+          chat.unread_count = (chat.unread_count ?? 0) + 1
+        }
       }
     },
     applyReadReceipt(chatId: string, deleteAt: string) {

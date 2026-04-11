@@ -8,10 +8,10 @@
           🌸 FloraBase
         </a>
         <div class="hidden md:flex items-center gap-6 text-sm text-stone-600">
-          <a href="#families" class="hover:text-green-800 transition">Families</a>
-          <a href="#species" class="hover:text-green-800 transition">Species</a>
-          <a href="#seasonal" class="hover:text-green-800 transition">Seasonal</a>
-          <a href="#about" class="hover:text-green-800 transition">About</a>
+          <a href="#families" class="hover:text-green-800 transition">Семейства</a>
+          <a href="#species" class="hover:text-green-800 transition">Виды</a>
+          <a href="#seasonal" class="hover:text-green-800 transition">По сезонам</a>
+          <a href="#about" class="hover:text-green-800 transition">О проекте</a>
           <NuxtLink
             to="/garden"
             class="text-xs text-stone-400 hover:text-stone-600 transition ml-2"
@@ -27,17 +27,17 @@
     <!-- Hero -->
     <header class="bg-gradient-to-br from-rose-50 via-green-50 to-amber-50 py-20 px-4">
       <div class="max-w-4xl mx-auto text-center">
-        <p class="text-xs font-medium tracking-widest text-green-700 uppercase mb-3">Botanical Reference</p>
+        <p class="text-xs font-medium tracking-widest text-green-700 uppercase mb-3">Ботанический справочник</p>
         <h1 class="text-4xl md:text-5xl font-serif font-bold text-stone-900 mb-5 leading-tight">
-          Encyclopedia of<br class="hidden md:block"> Flowering Plants
+          Энциклопедия<br class="hidden md:block"> цветковых растений
         </h1>
         <p class="text-base text-stone-600 max-w-xl mx-auto leading-relaxed">
-          A curated reference for enthusiasts, botanists, and gardeners.
-          Browse by family, colour, season, and habitat across thousands of documented species.
+          Справочник для любителей, ботаников и садоводов.
+          Поиск по семейству, цвету, сезону и среде обитания среди тысяч документированных видов.
         </p>
         <div class="mt-8 flex flex-wrap gap-3 justify-center text-sm">
-          <a href="#families" class="px-5 py-2 bg-green-800 text-white rounded-full hover:bg-green-900 transition">Browse Families</a>
-          <a href="#species" class="px-5 py-2 border border-stone-300 text-stone-700 rounded-full hover:border-green-700 hover:text-green-800 transition">Featured Species</a>
+          <a href="#families" class="px-5 py-2 bg-green-800 text-white rounded-full hover:bg-green-900 transition">Семейства</a>
+          <a href="#species" class="px-5 py-2 border border-stone-300 text-stone-700 rounded-full hover:border-green-700 hover:text-green-800 transition">Избранные виды</a>
         </div>
       </div>
     </header>
@@ -47,15 +47,15 @@
       <div class="max-w-4xl mx-auto px-4 py-4 grid grid-cols-3 divide-x divide-stone-100 text-center text-sm">
         <div class="px-4">
           <p class="font-semibold text-stone-900">416</p>
-          <p class="text-stone-500 text-xs">Families</p>
+          <p class="text-stone-500 text-xs">Семейств</p>
         </div>
         <div class="px-4">
           <p class="font-semibold text-stone-900">~369 000</p>
-          <p class="text-stone-500 text-xs">Known species</p>
+          <p class="text-stone-500 text-xs">Известных видов</p>
         </div>
         <div class="px-4">
           <p class="font-semibold text-stone-900">6</p>
-          <p class="text-stone-500 text-xs">Continents</p>
+          <p class="text-stone-500 text-xs">Континентов</p>
         </div>
       </div>
     </div>
@@ -64,10 +64,10 @@
     <section id="families" class="max-w-6xl mx-auto px-4 py-16">
       <div class="flex items-end justify-between mb-8">
         <div>
-          <p class="text-xs font-medium tracking-widest text-green-700 uppercase mb-1">Classification</p>
-          <h2 class="text-2xl font-serif font-bold text-stone-900">Major Flowering Families</h2>
+          <p class="text-xs font-medium tracking-widest text-green-700 uppercase mb-1">Классификация</p>
+          <h2 class="text-2xl font-serif font-bold text-stone-900">Основные цветковые семейства</h2>
         </div>
-        <a href="#species" class="text-sm text-green-800 hover:underline hidden md:block">See all species →</a>
+        <a href="#species" class="text-sm text-green-800 hover:underline hidden md:block">Все виды →</a>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         <div
@@ -90,8 +90,8 @@
     <section id="species" class="bg-stone-50 py-16">
       <div class="max-w-6xl mx-auto px-4">
         <div class="mb-8">
-          <p class="text-xs font-medium tracking-widest text-green-700 uppercase mb-1">Featured</p>
-          <h2 class="text-2xl font-serif font-bold text-stone-900">Notable Species</h2>
+          <p class="text-xs font-medium tracking-widest text-green-700 uppercase mb-1">Избранное</p>
+          <h2 class="text-2xl font-serif font-bold text-stone-900">Примечательные виды</h2>
         </div>
         <div class="grid md:grid-cols-2 gap-5">
           <article
@@ -117,8 +117,8 @@
     <!-- Browse by colour -->
     <section class="max-w-6xl mx-auto px-4 py-16">
       <div class="mb-8">
-        <p class="text-xs font-medium tracking-widest text-green-700 uppercase mb-1">Index</p>
-        <h2 class="text-2xl font-serif font-bold text-stone-900">Browse by Colour</h2>
+        <p class="text-xs font-medium tracking-widest text-green-700 uppercase mb-1">Индекс</p>
+        <h2 class="text-2xl font-serif font-bold text-stone-900">Поиск по цвету</h2>
       </div>
       <div class="flex flex-wrap gap-3">
         <button
@@ -136,8 +136,8 @@
     <section id="seasonal" class="bg-gradient-to-br from-green-50 to-emerald-50 py-16">
       <div class="max-w-6xl mx-auto px-4">
         <div class="mb-8">
-          <p class="text-xs font-medium tracking-widest text-green-700 uppercase mb-1">Phenology</p>
-          <h2 class="text-2xl font-serif font-bold text-stone-900">Bloom Calendar</h2>
+          <p class="text-xs font-medium tracking-widest text-green-700 uppercase mb-1">Фенология</p>
+          <h2 class="text-2xl font-serif font-bold text-stone-900">Календарь цветения</h2>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div v-for="s in seasons" :key="s.name" class="bg-white rounded-2xl p-5 shadow-sm border border-stone-100 text-center">
@@ -154,33 +154,27 @@
     <!-- About -->
     <section id="about" class="max-w-4xl mx-auto px-4 py-16">
       <div class="mb-6">
-        <p class="text-xs font-medium tracking-widest text-green-700 uppercase mb-1">About</p>
-        <h2 class="text-2xl font-serif font-bold text-stone-900">About FloraBase</h2>
+        <p class="text-xs font-medium tracking-widest text-green-700 uppercase mb-1">О проекте</p>
+        <h2 class="text-2xl font-serif font-bold text-stone-900">О FloraBase</h2>
       </div>
       <div class="text-stone-600 text-sm leading-relaxed space-y-3">
         <p>
-          FloraBase is a botanical reference project cataloguing flowering plant diversity across
-          all major families and geographic regions. Our entries draw on published herbarium
-          specimens, field observations, and peer-reviewed taxonomic revisions.
+          FloraBase — ботанический справочный проект, каталогизирующий разнообразие цветковых растений во всех основных семействах и географических регионах. Материалы основаны на опубликованных гербарных образцах, полевых наблюдениях и рецензируемых таксономических ревизиях.
         </p>
         <p>
-          Coverage spans angiosperms (flowering plants) from the core eudicots — including
-          Asteraceae, Rosaceae, Fabaceae, and Lamiaceae — through the monocots, with dedicated
-          sections for Orchidaceae and Poaceae. Gymnosperms and ferns are outside the project scope.
+          Охват включает покрытосеменные (цветковые) растения от основных эвдикотов — включая Asteraceae, Rosaceae, Fabaceae и Lamiaceae — до однодольных с отдельными разделами для Orchidaceae и Poaceae. Голосеменные и папоротники выходят за рамки проекта.
         </p>
         <p>
-          The project follows the APG IV classification system. Species pages include synonyms,
-          distribution maps, bloom phenology, habitat notes, and conservation status where assessed
-          by the IUCN Red List.
+          Проект следует системе классификации APG IV. Страницы видов включают синонимы, карты ареалов, фенологию цветения, заметки о среде обитания и охранный статус по оценке Красного списка IUCN.
         </p>
       </div>
     </section>
 
     <footer class="border-t border-stone-100 py-8 text-center text-xs text-stone-400">
       © {{ new Date().getFullYear() }} FloraBase ·
-      <a href="#" class="hover:underline">Species Index</a> ·
-      <a href="#" class="hover:underline">Family List</a> ·
-      <a href="#" class="hover:underline">Contribute</a>
+      <a href="#" class="hover:underline">Индекс видов</a> ·
+      <a href="#" class="hover:underline">Список семейств</a> ·
+      <a href="#" class="hover:underline">Участвовать</a>
     </footer>
   </div>
 </template>
@@ -189,12 +183,12 @@
 definePageMeta({ layout: 'public' })
 
 useSeoMeta({
-  title: 'FloraBase — Encyclopedia of Flowering Plants',
+  title: 'FloraBase — Энциклопедия цветковых растений',
   description:
-    'A botanical reference for flowering plant families and species. Browse by family, colour, season, and habitat.',
-  ogTitle: 'FloraBase — Encyclopedia of Flowering Plants',
+    'Ботанический справочник по семействам и видам цветковых растений. Поиск по семейству, цвету, сезону и среде обитания.',
+  ogTitle: 'FloraBase — Энциклопедия цветковых растений',
   ogDescription:
-    'Curated botanical reference covering major angiosperm families, notable species, bloom phenology, and distribution notes.',
+    'Курируемый ботанический справочник: основные семейства, примечательные виды, фенология цветения и ареалы распространения.',
   ogType: 'website',
   robots: 'index, follow',
 })
@@ -207,9 +201,9 @@ useHead({
         '@context': 'https://schema.org',
         '@type': 'WebSite',
         name: 'FloraBase',
-        description: 'Encyclopedia of flowering plants — families, species, and phenology.',
-        about: { '@type': 'Thing', name: 'Botany', sameAs: 'https://en.wikipedia.org/wiki/Botany' },
-        inLanguage: 'en',
+        description: 'Энциклопедия цветковых растений — семейства, виды и фенология.',
+        about: { '@type': 'Thing', name: 'Ботаника', sameAs: 'https://ru.wikipedia.org/wiki/Ботаника' },
+        inLanguage: 'ru',
       }),
     },
   ],
@@ -218,128 +212,128 @@ useHead({
 const plantFamilies = [
   {
     latin: 'Rosaceae',
-    common: 'Rose Family',
+    common: 'Семейство розовых',
     emoji: '🌹',
-    description: 'Over 4 800 species across 91 genera. Includes roses, apples, cherries, and strawberries. Characterised by five-petalled flowers and hypanthia.',
-    tags: ['Temperate', 'Edible fruits', 'Ornamental'],
+    description: 'Более 4 800 видов, 91 род. Включает розы, яблони, вишни и землянику. Характерны пятилепестные цветки и гипантий.',
+    tags: ['Умеренный пояс', 'Съедобные плоды', 'Декоративные'],
   },
   {
     latin: 'Orchidaceae',
-    common: 'Orchid Family',
+    common: 'Семейство орхидных',
     emoji: '🌸',
-    description: 'The largest flowering plant family with ~28 000 species. Renowned for elaborate bilateral symmetry and mycorrhizal seed germination.',
-    tags: ['Tropical', 'Epiphyte', 'Diverse'],
+    description: 'Крупнейшее семейство цветковых растений — ок. 28 000 видов. Известны двусторонной симметрией цветков и микоризным прорастанием семян.',
+    tags: ['Тропики', 'Эпифиты', 'Разнообразие'],
   },
   {
     latin: 'Asteraceae',
-    common: 'Daisy Family',
+    common: 'Семейство астровых',
     emoji: '🌻',
-    description: 'Second-largest family with over 32 000 species. Distinguishable by composite flower heads (capitula) that mimic single blooms.',
-    tags: ['Cosmopolitan', 'Composite head', 'Sun-loving'],
+    description: 'Второе по размеру семейство — более 32 000 видов. Отличительны соцветия (капитулы), мимикрирующие единый цветок.',
+    tags: ['Космополиты', 'Соцветия', 'Светолюбивые'],
   },
   {
     latin: 'Fabaceae',
-    common: 'Legume Family',
+    common: 'Семейство бобовых',
     emoji: '🌷',
-    description: 'Third-largest family (~19 500 sp.). Key ecological role via nitrogen fixation. Includes peas, beans, acacias, and wisteria.',
-    tags: ['Nitrogen fixation', 'Pantropical', 'Pod fruit'],
+    description: 'Третье по размеру — ок. 19 500 видов. Ключевая экологическая роль в фиксации азота. Включает горох, фасоль, акации и вистерию.',
+    tags: ['Фиксация азота', 'Пантропики', 'Бобовый плод'],
   },
   {
     latin: 'Lamiaceae',
-    common: 'Mint Family',
+    common: 'Семейство яснотковых',
     emoji: '💐',
-    description: 'Around 7 000 species of aromatic herbs and shrubs. Square stems and opposite leaves are diagnostic. Includes lavender, sage, and basil.',
-    tags: ['Aromatic', 'Culinary', 'Lipped flowers'],
+    description: 'Ок. 7 000 видов ароматных трав и полукустарников. Четырёхгранные стебли и противоположные листья. Включает лаванду, шалфей и базилик.',
+    tags: ['Ароматные', 'Пряные', 'Губовидные цветки'],
   },
   {
     latin: 'Ranunculaceae',
-    common: 'Buttercup Family',
+    common: 'Семейство лютиковых',
     emoji: '🌼',
-    description: 'Approximately 2 500 species of mostly herbaceous plants characterised by numerous free stamens and apocarpous pistils.',
-    tags: ['Temperate', 'Toxic alkaloids', 'Spring bloom'],
+    description: 'Ок. 2 500 видов, в основном травянистые растения с многочисленными свободными тычинками и апокарпными пестиками.',
+    tags: ['Умеренный пояс', 'Токсичные алкалоиды', 'Весеннее цветение'],
   },
 ]
 
 const featuredSpecies = [
   {
     latin: 'Rosa canina',
-    common: 'Dog Rose',
+    common: 'Шиповник обыкновенный',
     emoji: '🌹',
-    description: 'Widespread scrambling shrub native to Europe, northwest Africa, and western Asia. Bears five-petalled pink flowers May–July and scarlet hips rich in vitamin C.',
-    habitat: 'Hedgerows & scrub',
-    bloom: 'May – July',
+    description: 'Распространённый лазящий кустарник, родной для Европы, Сев. Африки и Зап. Азии. Цветёт пятилепестными розовыми цветками в мае–июле; плоды богаты витамином C.',
+    habitat: 'Живые изгороди и кустарники',
+    bloom: 'Май – Июль',
   },
   {
     latin: 'Papaver rhoeas',
-    common: 'Common Poppy',
+    common: 'Мак полевой',
     emoji: '🌺',
-    description: 'Annual of disturbed arable land. Brilliant red petals with a dark basal spot. Extensively distributed across Europe and temperate Asia.',
-    habitat: 'Arable & disturbed',
-    bloom: 'June – August',
+    description: 'Однолетнее полевое растение нарушенных угодий. Ярко-красные лепестки с тёмным пятном у основания. Широко распространён по Европе и умеренной Азии.',
+    habitat: 'Пахотные поля и обочины',
+    bloom: 'Июнь – Август',
   },
   {
     latin: 'Lavandula angustifolia',
-    common: 'True Lavender',
+    common: 'Лаванда узколистная',
     emoji: '💜',
-    description: 'Aromatic subshrub from Mediterranean hillsides. Dense spikes of violet-blue flowers attract pollinators and yield commercially important essential oil.',
-    habitat: 'Dry calcareous slopes',
-    bloom: 'July – August',
+    description: 'Ароматный полукустарник средиземноморских холмов. Густые колоски фиолетовых цветков привлекают опылителей и дают коммерчески ценное эфирное масло.',
+    habitat: 'Сухие известняковые склоны',
+    bloom: 'Июль – Август',
   },
   {
     latin: 'Helianthus annuus',
-    common: 'Common Sunflower',
+    common: 'Подсолнух однолетний',
     emoji: '🌻',
-    description: 'Tall annual from western North America. Capitulate inflorescences exhibit heliotropism in bud stage. Seeds are an important oilseed crop worldwide.',
-    habitat: 'Open disturbed ground',
-    bloom: 'July – October',
+    description: 'Высокое однолетнее растение из зап. Сев. Америки. Соцветия проявляют гелиотропизм в фазе бутона. Семена — важная масличная культура во всём мире.',
+    habitat: 'Открытые нарушенные угодья',
+    bloom: 'Июль – Октябрь',
   },
   {
     latin: 'Viola odorata',
-    common: 'Sweet Violet',
+    common: 'Фиалка душистая',
     emoji: '🪻',
-    description: 'Rhizomatous perennial of woodland edges and hedgebanks. One of the earliest spring flowers, strongly fragrant. Used historically in perfumery and confectionery.',
-    habitat: 'Shaded woodland edges',
-    bloom: 'February – April',
+    description: 'Корневищный многолетник вдоль опушек и живых изгородей. Один из самых ранних весенних цветков, сильно ароматный. Исторически применялся в парфюмерии и кулинарии.',
+    habitat: 'Тенистые опушки леса',
+    bloom: 'Февраль – Апрель',
   },
   {
     latin: 'Convallaria majalis',
-    common: 'Lily of the Valley',
+    common: 'Ландыш майский',
     emoji: '🌿',
-    description: 'Shade-tolerant rhizomatous herb forming spreading colonies in deciduous woodland. Racemes of pendant white bells noted for intense fragrance. All parts toxic.',
-    habitat: 'Deciduous woodland',
-    bloom: 'April – May',
+    description: 'Теневыносливый корневищный многолетник, образующий заросли в лиственном лесу. Кисти из поникающих белых колокольчиков отличаются сильным ароматом. Все части ядовиты.',
+    habitat: 'Лиственный лес',
+    bloom: 'Апрель – Май',
   },
 ]
 
 const colours = [
-  { name: 'White', dot: '⚪', cls: 'border-stone-200 text-stone-600 hover:border-stone-400' },
-  { name: 'Yellow', dot: '🟡', cls: 'border-amber-200 text-amber-700 hover:border-amber-400 bg-amber-50' },
-  { name: 'Red', dot: '🔴', cls: 'border-red-200 text-red-700 hover:border-red-400 bg-red-50' },
-  { name: 'Pink', dot: '🩷', cls: 'border-rose-200 text-rose-700 hover:border-rose-400 bg-rose-50' },
-  { name: 'Purple', dot: '🟣', cls: 'border-purple-200 text-purple-700 hover:border-purple-400 bg-purple-50' },
-  { name: 'Blue', dot: '🔵', cls: 'border-blue-200 text-blue-700 hover:border-blue-400 bg-blue-50' },
-  { name: 'Orange', dot: '🟠', cls: 'border-orange-200 text-orange-700 hover:border-orange-400 bg-orange-50' },
-  { name: 'Green (bract)', dot: '🟢', cls: 'border-green-200 text-green-700 hover:border-green-400 bg-green-50' },
+  { name: 'Белый', dot: '⚪', cls: 'border-stone-200 text-stone-600 hover:border-stone-400' },
+  { name: 'Жёлтый', dot: '🟡', cls: 'border-amber-200 text-amber-700 hover:border-amber-400 bg-amber-50' },
+  { name: 'Красный', dot: '🔴', cls: 'border-red-200 text-red-700 hover:border-red-400 bg-red-50' },
+  { name: 'Розовый', dot: '🦷', cls: 'border-rose-200 text-rose-700 hover:border-rose-400 bg-rose-50' },
+  { name: 'Фиолетовый', dot: '🟣', cls: 'border-purple-200 text-purple-700 hover:border-purple-400 bg-purple-50' },
+  { name: 'Синий', dot: '🔵', cls: 'border-blue-200 text-blue-700 hover:border-blue-400 bg-blue-50' },
+  { name: 'Оранжевый', dot: '🟠', cls: 'border-orange-200 text-orange-700 hover:border-orange-400 bg-orange-50' },
+  { name: 'Зелёный (прицветник)', dot: '🟢', cls: 'border-green-200 text-green-700 hover:border-green-400 bg-green-50' },
 ]
 
 const seasons = [
   {
-    name: 'Spring',
+    name: 'Весна',
     emoji: '🌱',
     flowers: ['Viola odorata', 'Convallaria majalis', 'Prunus avium', 'Narcissus pseudonarcissus'],
   },
   {
-    name: 'Summer',
+    name: 'Лето',
     emoji: '☀️',
     flowers: ['Lavandula angustifolia', 'Rosa canina', 'Papaver rhoeas', 'Helianthus annuus'],
   },
   {
-    name: 'Autumn',
+    name: 'Осень',
     emoji: '🍂',
     flowers: ['Aster amellus', 'Solidago virgaurea', 'Cyclamen hederifolium', 'Colchicum autumnale'],
   },
   {
-    name: 'Winter',
+    name: 'Зима',
     emoji: '❄️',
     flowers: ['Helleborus niger', 'Galanthus nivalis', 'Prunus subhirtella', 'Daphne mezereum'],
   },

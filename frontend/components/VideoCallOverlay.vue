@@ -5,21 +5,21 @@
       <div class="flex items-center justify-between px-3 sm:px-5 py-2 sm:py-4 bg-gradient-to-r from-slate-900 to-slate-800 border-b border-white/10 text-white flex-shrink-0">
         <div class="min-w-0">
           <p class="font-semibold text-sm sm:text-base truncate">{{ callStore.peerName || 'Call' }}</p>
-          <p class="text-xs text-white/60">{{ callStore.type === 'video' ? 'Video call' : 'Audio call' }} • {{ connectionQuality }}</p>
+          <p class="text-xs text-white/60">{{ callStore.type === 'video' ? 'Видеозвонок' : 'Аудиозвонок' }} • {{ connectionQuality }}</p>
         </div>
         <div class="flex items-center gap-1 sm:gap-2 flex-shrink-0">
           <button
             v-if="callStore.type === 'video' && !isFullscreen"
             @click="toggleFullscreen"
             class="p-2 rounded-full hover:bg-white/10 transition text-white text-lg"
-            title="Fullscreen"
+            title="Полный экран"
           >
             ⛶
           </button>
           <button
             @click="toggleVolumeIcon"
             class="p-2 rounded-full hover:bg-white/10 transition text-white text-lg"
-            :title="isMuted ? 'Unmute' : 'Mute'"
+            :title="isMuted ? 'Включить звук' : 'Выключить звук'"
           >
             {{ isMuted ? '🔇' : '🔊' }}
           </button>
@@ -39,7 +39,7 @@
           <div v-if="!remoteVideoActive" class="absolute text-center">
             <div class="text-6xl sm:text-8xl mb-2">📹</div>
             <p class="text-white/60 text-sm sm:text-base">{{ callStore.peerName || 'Peer' }}</p>
-            <p v-if="callStore.type === 'audio'" class="text-white/40 text-xs sm:text-sm">Audio only</p>
+            <p v-if="callStore.type === 'audio'" class="text-white/40 text-xs sm:text-sm">Только звук</p>
           </div>
         </div>
 
@@ -66,13 +66,13 @@
             @click="acceptIncoming"
             class="flex-1 sm:flex-none px-6 sm:px-8 py-2.5 sm:py-3 rounded-full bg-green-600 hover:bg-green-500 text-white font-medium text-sm sm:text-base transition shadow-lg hover:shadow-green-500/50"
           >
-            ✓ Accept
+                        ✓ Принять
           </button>
           <button
             @click="rejectIncoming"
             class="flex-1 sm:flex-none px-6 sm:px-8 py-2.5 sm:py-3 rounded-full bg-red-600 hover:bg-red-500 text-white font-medium text-sm sm:text-base transition shadow-lg hover:shadow-red-500/50"
           >
-            ✕ Reject
+            ✕ Отклонить
           </button>
         </template>
 
@@ -83,7 +83,7 @@
             :class="['px-4 sm:px-6 py-2.5 sm:py-3 rounded-full font-medium text-sm sm:text-base transition', isMicMuted ? 'bg-red-600 hover:bg-red-500' : 'bg-slate-700 hover:bg-slate-600']"
           >
             {{ isMicMuted ? '🔇' : '🎤' }}
-            <span class="hidden sm:inline ml-2">{{ isMicMuted ? 'Unmute' : 'Mute' }}</span>
+            <span class="hidden sm:inline ml-2">{{ isMicMuted ? 'Включить' : 'Выключить' }}</span>
           </button>
           <button
             v-if="callStore.type === 'video'"
@@ -91,13 +91,13 @@
             :class="['px-4 sm:px-6 py-2.5 sm:py-3 rounded-full font-medium text-sm sm:text-base transition', isCameraMuted ? 'bg-orange-600 hover:bg-orange-500' : 'bg-slate-700 hover:bg-slate-600']"
           >
             {{ isCameraMuted ? '📹' : '🎥' }}
-            <span class="hidden sm:inline ml-2">{{ isCameraMuted ? 'Camera off' : 'Camera on' }}</span>
+            <span class="hidden sm:inline ml-2">{{ isCameraMuted ? 'Камера выкл.' : 'Камера вкл.' }}</span>
           </button>
           <button
             @click="hangUp"
             class="flex-1 sm:flex-none px-4 sm:px-8 py-2.5 sm:py-3 rounded-full bg-red-600 hover:bg-red-500 text-white font-medium text-sm sm:text-base transition shadow-lg hover:shadow-red-500/50"
           >
-            📞 End Call
+            📞 Завершить
           </button>
         </template>
       </div>
@@ -117,7 +117,7 @@ const isCameraMuted = ref(false)
 const isMuted = ref(false)
 const remoteVideoActive = ref(false)
 const localVideoActive = ref(false)
-const connectionQuality = ref('connecting...')
+  const connectionQuality = ref('подключение...')
 let startedOutgoing = false
 
 watch(localVideoEl, (value) => {
@@ -193,6 +193,6 @@ function toggleFullscreen() {
 
 function updateConnectionQuality() {
   // This would fetch stats from the RTCPeerConnection
-  connectionQuality.value = 'good' // Placeholder - implement actual stats gathering
+  connectionQuality.value = 'хорошое' // Placeholder - implement actual stats gathering
 }
 </script>

@@ -9,7 +9,7 @@
         <span class="text-[11px] text-tg-gray whitespace-nowrap">{{ formatTime(chat.last_message_at) }}</span>
       </div>
       <div class="flex items-center justify-between gap-2 mt-0.5">
-        <p class="text-tg-gray text-xs truncate">{{ chat.last_message || 'No messages yet' }}</p>
+        <p class="text-tg-gray text-xs truncate">{{ chat.last_message || 'Нет сообщений' }}</p>
         <span
           v-if="chat.unread_count"
           class="min-w-5 h-5 px-1 rounded-full bg-tg-green text-white text-[11px] grid place-items-center"

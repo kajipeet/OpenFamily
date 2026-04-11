@@ -9,18 +9,19 @@
         </div>
       </div>
       <div class="flex items-center gap-1 flex-shrink-0">
+        <NotificationCenter />
         <NuxtLink
           v-if="auth.isAdmin"
           to="/app/admin"
           class="text-white/60 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition text-lg"
-          title="Admin panel"
+          title="Панель администратора"
         >⚙️</NuxtLink>
         <button
           @click="logout"
           class="text-white/60 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition text-sm"
-          title="Logout"
+          title="Выйти"
         >
-          Exit
+          Выход
         </button>
       </div>
     </div>
@@ -32,7 +33,7 @@
           v-model="searchTag"
           @input="onSearchInput"
           type="text"
-          placeholder="Search by @tag"
+          placeholder="Поиск по @тегу"
           class="flex-1 bg-transparent text-white text-sm outline-none placeholder-gray-500"
         />
       </div>
@@ -57,7 +58,7 @@
 
     <div class="flex-1 overflow-y-auto">
       <div v-if="chatStore.chats.length === 0" class="text-center text-tg-gray text-xs mt-8 px-4">
-        No chats yet.<br />Search for a member by @tag to start.
+        Чатов пока нет.<br />Найдите участника по @тегу для начала.
       </div>
       <ChatListItem
         v-for="chat in chatStore.chats"
@@ -70,6 +71,8 @@
 </template>
 
 <script setup lang="ts">
+import { useNotificationStore } from '~/stores/notifications'
+
 const auth = useAuthStore()
 const chatStore = useChatStore()
 const router = useRouter()
@@ -77,8 +80,14 @@ const headers = useAuthHeaders()
 const { logout } = useAuth()
 const searchTag = ref('')
 const searchResults = ref<any[]>([])
+const notificationStore = useNotificationStore()
 
-onMounted(() => chatStore.loadChats())
+onMounted(async () => {
+  await chatStore.loadChats()
+  notificationStore.syncPermission()
+  // Request permission once in authenticated area for background notifications.
+  notificationStore.ensurePermission()
+})
 
 let debounce: ReturnType<typeof setTimeout>
 

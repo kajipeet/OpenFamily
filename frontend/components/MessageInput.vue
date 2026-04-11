@@ -1,14 +1,21 @@
 <template>
   <div class="border-t border-black/10 bg-white px-2 sm:px-3 py-2 sm:py-3 flex-shrink-0 w-full min-h-[60px] sm:min-h-[68px]">
+    <div v-if="replyTo" class="mb-2 px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 flex items-center justify-between gap-2">
+      <div class="min-w-0">
+        <p class="text-[11px] text-gray-500">Отвечаю</p>
+        <p class="text-xs text-gray-700 truncate">{{ replyLabel }}</p>
+      </div>
+      <button type="button" class="text-gray-500 hover:text-gray-700 transition" @click="emit('clearReply')">✕</button>
+    </div>
     <form class="flex items-end gap-1 sm:gap-1.5 md:gap-2" @submit.prevent="submitText">
-      <label class="shrink-0 cursor-pointer rounded-full p-1.5 sm:p-2 hover:bg-gray-100 transition text-base sm:text-lg" title="Attach file">
+      <label class="shrink-0 cursor-pointer rounded-full p-1.5 sm:p-2 hover:bg-gray-100 transition text-base sm:text-lg" title="Прикрепить файл">
         <input class="hidden" type="file" @change="onFileChange" />
         <span>📎</span>
       </label>
       <button 
         type="button" 
         class="shrink-0 rounded-full p-1.5 sm:p-2 hover:bg-gray-100 transition text-base sm:text-lg" 
-        title="Record voice note" 
+        title="Записать голосовое сообщение" 
         @click="toggleRecording"
         :class="isRecording ? 'bg-red-100' : ''"
       >
@@ -17,7 +24,7 @@
       <textarea
         v-model="text"
         rows="1"
-        placeholder="Write a message"
+        placeholder="Написать сообщение"
         class="flex-1 resize-none rounded-2xl border border-gray-200 px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm outline-none focus:ring-2 focus:ring-tg-blue min-h-[36px] sm:min-h-[40px] max-h-24"
         @input="handleInput"
         @keydown.enter.exact.prevent="submitText"
@@ -37,9 +44,10 @@ const props = defineProps({
   chatId: { type: String, required: true },
   receiverId: { type: String, required: true },
   receiverPublicKey: { type: String, required: true },
+  replyTo: { type: Object, default: null },
 })
 
-const emit = defineEmits(['sent'])
+const emit = defineEmits(['sent', 'clearReply'])
 const chatStore = useChatStore()
 const headers = useAuthHeaders()
 const { sendTyping } = useWebSocket()
@@ -49,6 +57,16 @@ const text = ref('')
 const isRecording = ref(false)
 let recorder: MediaRecorder | null = null
 let chunks: Blob[] = []
+
+const replyLabel = computed(() => {
+  if (!props.replyTo) return ''
+  if (props.replyTo.type === 'text') return 'Зашифрованное сообщение'
+  if (props.replyTo.type === 'image') return 'Изображение'
+  if (props.replyTo.type === 'video') return 'Видео'
+  if (props.replyTo.type === 'voice') return 'Голосовое сообщение'
+  if (props.replyTo.type === 'audio') return 'Аудиофайл'
+  return 'Прикреплённый файл'
+})
 
 onMounted(async () => {
   await e2ee.ensurePublished()
@@ -90,6 +108,7 @@ async function submitText() {
     method: 'POST',
     headers,
     body: {
+      reply_to_id: props.replyTo?.id,
       type: 'text',
       content: encrypted.ciphertext,
       nonce: encrypted.nonce,
@@ -98,6 +117,7 @@ async function submitText() {
   }))
   chatStore.messages.push(message)
   text.value = ''
+  emit('clearReply')
   emit('sent')
 }
 
@@ -138,6 +158,7 @@ async function sendEncryptedFile(file: File, forcedType?: string) {
     method: 'POST',
     headers,
     body: {
+      reply_to_id: props.replyTo?.id,
       type,
       content: encryptedCaption?.ciphertext || '',
       nonce: encryptedCaption?.nonce || '',
@@ -153,6 +174,7 @@ async function sendEncryptedFile(file: File, forcedType?: string) {
 
   chatStore.messages.push(message)
   text.value = ''
+  emit('clearReply')
   emit('sent')
 }
 

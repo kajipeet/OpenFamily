@@ -62,6 +62,7 @@ func (h *WSHandler) Handle(c *gin.Context) {
 func (h *WSHandler) route(cl *services.WSClient, msg services.WSMessage) {
 	switch msg.Type {
 	case services.WSTypeTyping,
+		services.WSTypeSignal,
 		services.WSTypeCallOffer,
 		services.WSTypeCallAnswer,
 		services.WSTypeCallICE,
